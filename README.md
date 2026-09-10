@@ -1,98 +1,41 @@
 # Google Drive Clone (Django Full-Stack)
 
-A modern, high-performance, single-port Google Drive web application built with **Python 3**, **Django 5**, and a sleek **Tailwind CSS / DaisyUI** interface. Designed for CS50W (Web Programming with Python and JavaScript) as a complete cloud storage and document preview platform.
+A modern, high-performance, single-port Google Drive web application built with **Python 3**, **Django 5**, and a sleek **Tailwind CSS / DaisyUI** interface.
 
-> **🙏 Attribution & Project Citation:** All core UI/UX concepts and foundational ideas are inspired by and credited to the open-source [Google Drive Clone by Ezeibekwe Emmanuel](https://github.com/EzeibekweEmma/google-drive-clone). This project honors that original design while completely rewriting the stack from React / Next.js / Prisma into a Python / Django 5 monolith, adding multi-format reading suites, batch operations, tiered quotas, and backend performance optimizations. See [Attribution & Acknowledgments](#-attribution-inspiration--original-project-citation) for full details.
-
----
-
-## 🌟 Key Features
-
-### 1. Multi-Format Reading & Preview Engines
-- **PDF Reading Mode**: Dedicated high-productivity reading mode featuring interactive zoom (50% to 200%), fit-to-width, document printing, and responsive canvas thumbnail generation.
-- **Photo & Graphic Viewer**: Smooth image preview modal equipped with lossless rotation (90-degree steps) and granular zoom controls.
-- **HTML5 Video Player**: Clean video player supporting variable playback speeds (0.5x, 1x, 1.25x, 1.5x, 2x) with responsive sizing.
-- **Interactive CSV Table Viewer**: Parses delimited tabular data directly into a searchable, scrollable spreadsheet-style grid.
-- **Text & Code Viewer**: Monospace text rendering with font size adjustments, word-wrap toggling, and one-click clipboard copying.
-
-### 2. File & Folder Lifecycle Management
-- **Drag-and-Drop Uploads**: Drag multiple files anywhere onto the screen to trigger an animated upload dropzone.
-- **Nested Folder Hierarchies**: Unlimited folder depth with breadcrumb navigation and recursive folder tree navigation.
-- **Multi-Item Batch Selection**: Select multiple items with Ctrl/Cmd or checkboxes to perform batch actions:
-  - Batch Star / Unstar
-  - Batch Move to any destination folder
-  - Batch Trash & Batch Restore
-  - Batch Permanent Delete (with storage reclaim)
-  - Batch Download as compressed `.zip` archive
-- **Instant Search & Autocomplete**: Real-time search dropdown showing matches across all folders with direct navigation.
-- **Zero-Lag Theme Switcher**: Instant transition-optimized Dark Mode & Light Mode switcher using `data-theme` persistence.
-
-### 3. Sharing & Public Collaboration
-- **Tokenized Public Links**: Share files or complete folder trees securely via unique cryptographic URL tokens without exposing internal IDs.
-- **Anonymous Folder Browsing**: Unauthenticated recipients can browse shared folders, traverse nested subfolders via breadcrumbs, and download the entire tree as a ZIP file.
-
-### 4. Storage Quotas & Admin Console
-- **Tiered Storage Plans**: Free 15 GB, 100 GB, and 500 GB plans with dynamic progress bars and modal contact prompts.
-- **Custom Admin Console**: Modern Google Drive branded Django Admin interface (`/admin/`) with integrated `UserProfileInline` to configure user quotas and account properties.
+> **🙏 Attribution & Project Citation:** All core UI/UX concepts and foundational ideas are inspired by and credited to the open-source [Google Drive Clone by Ezeibekwe Emmanuel](https://github.com/EzeibekweEmma/google-drive-clone) (MIT License). This project honors that original design while completely rewriting the stack from React / Next.js / Prisma into a pure Python / Django 5 monolith.
 
 ---
 
-## 📦 Ultra-Lightweight Showcase Media (< 20 KB)
+## 1. Prerequisites
 
-To ensure rapid GitHub deployment, fast clone times, and minimal repository weight, this project includes exactly **5 lightweight showcase files** totaling only **~16.5 KB**:
-
-| File Name | Format | Size | Showcase Feature |
-| :--- | :--- | :--- | :--- |
-| `Getting_Started_Guide.pdf` | PDF Document | ~850 B | Demonstrates PDF Reading Mode, Zoom & Print |
-| `Google_Drive_Banner.png` | PNG Image | ~1.4 KB | Demonstrates Photo Viewer & Rotation |
-| `Welcome_Notes.txt` | Plain Text | ~580 B | Demonstrates Text Mode & Clipboard Copying |
-| `Project_Roadmap.csv` | Tabular Data | ~366 B | Demonstrates Interactive CSV Table Grid |
-| `Sample_Video.mp4` | MP4 Video (W3C WPT) | ~13.7 KB | Demonstrates HTML5 Video Player & Speeds |
-
----
-
-## 🔐 Default Showcase Credentials
-
-For testing and grading, the database comes pre-seeded with two standardized accounts:
-
-| Account Role | Username | Password | Purpose & Access |
-| :--- | :--- | :--- | :--- |
-| **Demo User** | `demo` | `DemoPassword123!` | Standard user with the 5 pre-loaded showcase files in their drive |
-| **Administrator** | `admin` | `AdminPassword123!` | Superuser with the 5 showcase files in their drive + full Django Admin Console access (`/admin/`) |
-
-> **Security Note:** Both `demo` and `admin` accounts have identical copies of the 5 showcase documents in their individual drives. Login forms do not contain hardcoded or pre-filled credentials. Enter the credentials manually on the sign-in page.
-
----
-
-## 🐳 Docker Setup (Recommended — One Command)
-
-If you have Docker installed, you can launch the complete application with a single command without needing to install Python or configure dependencies manually:
-
-```bash
-docker compose up --build
-```
-
-- **Open the App:** [http://localhost:8000/](http://localhost:8000/)
-- **Admin Console:** [http://localhost:8000/admin/](http://localhost:8000/admin/)
-- **Demo Credentials:** Username `demo` | Password `DemoPassword123!`
-- **Admin Credentials:** Username `admin` | Password `AdminPassword123!`
-
-The `docker-compose.yml` configuration mounts `db.sqlite3` and `media/` as persistent volumes on your host machine, ensuring any uploaded documents or account updates persist across container stops.
-
-To stop the container:
-```bash
-docker compose down
-```
-
----
-
-## 🚀 Local Setup (Without Docker)
-
-### Prerequisites
 - **Python 3.10+** (Python 3.11 or 3.12 recommended)
 - **Git**
+- *(Optional)* **Docker & Docker Compose** (for one-command containerized launch)
 
-### Step-by-Step Installation
+---
+
+## 2. Contribution & Attribution
+
+This project is built upon the conceptual layout and visual design of **[google-drive-clone](https://github.com/EzeibekweEmma/google-drive-clone)** created by **[Ezeibekwe Emmanuel](https://github.com/EzeibekweEmma)** (MIT License). Sincere gratitude is extended to the original author for the design inspiration.
+
+### Architectural Evolution & Key Differences:
+
+| Aspect | Original Implementation | This Rebuild Project |
+| :--- | :--- | :--- |
+| **Backend & Stack** | Node.js / Next.js, NextAuth, Prisma ORM, PostgreSQL | Pure Python 3 & Django 5 monolith, SQLite (or PostgreSQL), Django Auth |
+| **Media Delivery** | Relied on third-party Cloudinary API | Self-contained, single-port zero-build local/server storage |
+| **Document Previews** | Basic link views | Dedicated PDF Reading Mode (zoom & print), Image Viewer (90° rotation & zoom), HTML5 Video Player (0.5x–2x speed), and interactive CSV Table Grid |
+| **Batch Operations** | Single item interactions | Multi-select toolbar for batch star, move, trash, restore, delete, and ZIP archive download |
+| **Storage & Admin** | Fixed 200MB limit | Configurable 15GB / 100GB / 500GB tiers with integrated Django Admin Console (`/admin/`) |
+| **Theme System** | Standard CSS | Zero-lag transition-suppressed Dark/Light Mode with instant client persistence |
+| **Performance** | Multi-hop network calls | $O(1)$ in-memory graph traversal for nested folder descendants, database composite indexes, and process-level email caching |
+
+- **Contributing:** Pull requests and feedback are welcome! Please ensure all tests pass before submitting PRs.
+- **License:** Distributed under the **MIT License**.
+
+---
+
+## 3. Setup
 
 1. **Clone the repository:**
    ```bash
@@ -100,7 +43,7 @@ docker compose down
    cd google-drive-clone
    ```
 
-2. **Create and activate a virtual environment:**
+2. **Create and activate virtual environment:**
    - **Windows (PowerShell):**
      ```powershell
      python -m venv .venv
@@ -117,85 +60,145 @@ docker compose down
    pip install -r requirements.txt
    ```
 
-4. **Apply database migrations:**
+4. **Run database migrations:**
    ```bash
    python manage.py migrate
    ```
 
-5. **Seed clean database with showcase files:**
+5. **Seed initial showcase database:**
    ```bash
    python seed_demo.py
    ```
-   *Output confirms the creation of `demo` and `admin` accounts alongside the 5 lightweight files.*
-
-6. **Start the development server:**
-   ```bash
-   python manage.py runserver
-   ```
-
-7. **Open your browser:**
-   - Main Application: [http://127.0.0.1:8000/](http://127.0.0.1:8000/) (Sign in with `demo` / `DemoPassword123!`)
-   - Admin Console: [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/) (Sign in with `admin` / `AdminPassword123!`)
+   *Seeds `demo` and `admin` accounts with identical copies of the 5 lightweight sample files.*
 
 ---
 
-## 🧪 Automated Testing & Verification
+## 4. Structure
 
-The codebase includes two comprehensive test suites:
-
-### 1. Standard Django Test Suite
-Runs all unit and integration tests across authentication, file storage, data isolation, and preview contracts:
-```bash
-python manage.py test
+```text
+google-drive-clone/
+├── drive/                  # Core Django application
+│   ├── models.py           # DriveItem & UserProfile models (with indexing)
+│   ├── views.py            # File views, API endpoints, batch handlers
+│   ├── utils.py            # Storage calculation & email cache
+│   ├── forms.py            # Authentication & profile forms
+│   └── tests.py            # Unit & integration test cases
+├── gdrive_project/         # Django project configuration (settings, URLs, WSGI)
+├── media/                  # Uploaded files storage (media/uploads/user_<id>/)
+├── static/                 # Static CSS, JS preview engine, images
+├── templates/              # HTML templates (drive views, modals, admin, auth)
+├── Dockerfile              # Docker container definition (Python 3.11-slim)
+├── docker-compose.yml      # Docker Compose setup with persistent volumes
+├── manage.py               # Django management script
+├── seed_demo.py            # Database reset & seed script
+├── test_comprehensive_validation.py # Squeezed functional validation suite
+├── test_live_server.py     # Live server integration test script
+├── requirements.txt        # Python package dependencies
+├── LICENSE                 # MIT License
+└── README.md               # Project documentation
 ```
-*Expected: `Ran 19 tests in ~32s (OK)`*
 
-### 2. Squeezed Consolidated Validation Suite
-Validates account lifecycles, validation rules, bidirectional admin sync, storage tiers, and batch APIs:
+---
+
+## 5. How to Run
+
+### Option A: Local Development Server
 ```bash
+python manage.py runserver
+```
+- **App URL:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- **Admin Console:** [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
+
+### Option B: Docker (One Command)
+```bash
+docker compose up --build
+```
+- **App URL:** [http://localhost:8000/](http://localhost:8000/)
+- **Admin Console:** [http://localhost:8000/admin/](http://localhost:8000/admin/)
+- Database (`db.sqlite3`) and uploads (`media/`) persist on your host machine.
+- Stop container with: `docker compose down`
+
+### Default Showcase Credentials
+| Account Role | Username | Password | Purpose & Access |
+| :--- | :--- | :--- | :--- |
+| **Demo User** | `demo` | `DemoPassword123!` | Standard user with the 5 pre-loaded showcase files in their drive |
+| **Administrator** | `admin` | `AdminPassword123!` | Superuser with the 5 showcase files in their drive + full Django Admin Console access (`/admin/`) |
+
+> **Security Note:** Both accounts have identical copies of the 5 showcase documents in their individual drives. Login forms do not contain hardcoded or pre-filled credentials.
+
+### Automated Testing
+```bash
+# Standard Django test suite (19 tests)
+python manage.py test
+
+# Fast consolidated feature validation suite (~2.5s)
 python test_comprehensive_validation.py
 ```
-*Expected: `ALL CONSOLIDATED FUNCTIONAL & FEATURE VALIDATIONS PASSED (100% OK)` in ~2.5s.*
+
+### Optional: Deploying with PostgreSQL (Production Server Database)
+By default, the project runs on **SQLite** for zero-configuration simplicity. To deploy with a server database like **PostgreSQL** (e.g., Render, Railway, Supabase, AWS RDS):
+
+1. Install PostgreSQL driver:
+   ```bash
+   pip install psycopg2-binary
+   ```
+2. Update `DATABASES` in `gdrive_project/settings.py` (or use `DATABASE_URL` with `dj-database-url`):
+   ```python
+   DATABASES = {
+       'default': {
+           'ENGINE': 'django.db.backends.postgresql',
+           'NAME': 'gdrive_db',
+           'USER': 'postgres',
+           'PASSWORD': 'your_password',
+           'HOST': 'localhost',  # or cloud database host
+           'PORT': '5432',
+       }
+   }
+   ```
+3. Run migrations and seed data:
+   ```bash
+   python manage.py migrate
+   python seed_demo.py
+   ```
 
 ---
 
-## 🌐 Production & GitHub Deployment Notes
+## 6. Indexing and Web Application
 
-When deploying this project to production (e.g. Render, Railway, Fly.io, Heroku, or a VPS):
+### Database Indexing & Query Optimizations
+- **Composite Index:** Added `models.Index(fields=['owner', 'is_folder'])` in `DriveItem` to accelerate quota queries and filter scans.
+- **$O(1)$ In-Memory Graph Traversal:** Replaced recursive database queries in `DriveItem.get_all_descendants()` with a single-query fetch and in-memory child traversal, reducing $O(N)$ cascading queries to $O(1)$.
+- **In-Memory Collision Checking:** Batch upload, move, and copy operations query existing names once as a `set()`, eliminating sequential database round-trips.
+- **Process-Level Caching:** Added `_ADMIN_EMAIL_CACHE` in `drive/utils.py` to prevent repeated superuser lookups on every page render.
 
-1. **Environment Variables**:
-   - Set `DEBUG=False` in production.
-   - Configure a secret `SECRET_KEY`.
-   - Update `ALLOWED_HOSTS` in `gdrive_project/settings.py` with your custom domain or deployment hostname.
-
-2. **Static Assets**:
-   - Collect static files for production serving:
-     ```bash
-     python manage.py collectstatic --noinput
-     ```
-
-3. **Media Storage**:
-   - Uploaded media is organized under `media/uploads/user_<id>/`. For containerized or ephemeral platforms, mount a persistent volume at `/media/` or configure S3-compatible cloud storage (e.g., AWS S3, Cloudflare R2).
+### Web Application Architecture
+- **Single-Port Architecture:** Unified Python/Django 5 monolith serving frontend HTML/JS and backend JSON APIs together without requiring separate Node/proxy servers.
+- **Zero-Lag Theme Switcher:** Instant transition-suppressed Dark Mode & Light Mode switcher using `data-theme` with client persistence.
+- **Hardened Forms:** Authentication forms do not contain pre-filled default credentials, ensuring secure login inputs.
 
 ---
 
-## 🙏 Attribution, Inspiration & Original Project Citation
+## 7. Feature
 
-This project draws its foundational conceptual layout, visual aesthetics, and interaction model from the open-source **[google-drive-clone](https://github.com/EzeibekweEmma/google-drive-clone)** created by **[Ezeibekwe Emmanuel](https://github.com/EzeibekweEmma)** (released under the MIT License). Sincere respect, gratitude, and acknowledgment are extended to the original author for the design vision and UI inspiration.
+### Ultra-Lightweight Showcase Media (< 20 KB)
+To ensure fast GitHub deployment, quick clone speeds, and minimal repository weight, both `demo` and `admin` drives come pre-seeded with exactly **5 lightweight showcase files** totaling only **~16.5 KB**:
 
-### Architectural Evolution & Key Differences:
+| File Name | Format | Size | Showcase Feature |
+| :--- | :--- | :--- | :--- |
+| `Getting_Started_Guide.pdf` | PDF Document | ~850 B | Demonstrates PDF Reading Mode, Zoom & Print |
+| `Google_Drive_Banner.png` | PNG Image | ~1.4 KB | Demonstrates Photo Viewer & Rotation |
+| `Welcome_Notes.txt` | Plain Text | ~580 B | Demonstrates Text Mode & Clipboard Copying |
+| `Project_Roadmap.csv` | Tabular Data | ~366 B | Demonstrates Interactive CSV Table Grid |
+| `Sample_Video.mp4` | MP4 Video (W3C WPT) | ~13.7 KB | Demonstrates HTML5 Video Player & Speeds |
 
-| Aspect | Original Implementation | This Rebuild Project |
-| :--- | :--- | :--- |
-| **Backend & Architecture** | Multi-service Node.js / Next.js, NextAuth, Prisma ORM, PostgreSQL | Pure Python 3 & Django 5 monolith, SQLite, native Django Auth |
-| **Cloud Dependency** | Relied on external third-party Cloudinary API for media | Self-contained, single-port zero-build execution with local storage |
-| **Document Previews** | Basic link views | Dedicated PDF Reading Mode (zoom & print), Image Viewer (90° rotation & zoom), HTML5 Video Player (0.5x–2x speed), and interactive CSV Table Grid |
-| **Batch Operations** | Single item interactions | Multi-select toolbar for batch star, move, trash, restore, delete, and ZIP archive download |
-| **Storage & Admin** | Fixed 200MB limit | Configurable 15GB / 100GB / 500GB tiers with integrated Django Admin Console (`/admin/`) |
-| **Theme System** | Standard CSS | Zero-lag transition-suppressed Dark/Light Mode with instant client persistence |
-| **Performance** | Multi-hop network calls | $O(1)$ in-memory graph traversal for nested folder descendants, database composite indexes, and process-level email caching |
-
----
-
-## 📄 License
-This project is licensed under the MIT License.
+### Core Functionality
+- **Dedicated Multi-Format Previews:**
+  - **PDF Reading Mode:** Document zoom (50% to 200%), fit-to-width, instant printing.
+  - **Photo Viewer:** Lossless 90° image rotation and granular zoom controls.
+  - **HTML5 Video Player:** Clean video player with speed controls (0.5x, 1x, 1.25x, 1.5x, 2x).
+  - **Interactive CSV Table:** Formats delimited data into a scrollable spreadsheet grid.
+  - **Text Viewer:** Monospace view with font size adjustments and clipboard copying.
+- **File Management:** Drag-and-drop upload zone, nested folders, instant search with dropdown autocomplete.
+- **Multi-Select Batch Actions:** Batch Star, Move, Trash, Restore, Permanent Delete, and ZIP archive download.
+- **Public Sharing:** Token-based public links for files and folder subtrees with anonymous breadcrumb navigation.
+- **Storage Plans & Admin Console:** 15GB, 100GB, and 500GB plans with branded Django Admin management (`/admin/`).
