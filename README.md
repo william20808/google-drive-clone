@@ -105,13 +105,28 @@ If running directly on your host machine with Python:
 ---
 
 ### Automated Testing
-All automated tests are organized together in the [`tests/`](file:///tests/) directory to support both formal grading and fast developer verification:
+All test suites are located in the [`tests/`](file:///tests/) directory:
 
-| Command | File Location | Speed | What It Tests & When to Use |
-| :--- | :--- | :--- | :--- |
-| `python manage.py test` | [`tests/test_unit.py`](file:///tests/test_unit.py) | ~33s | **Standard Django Test Suite (19 tests):** Formal evaluation and CI/CD. Runs in an isolated temporary database testing workspace isolation, upload quotas, trash lifecycle, permissions, and sharing tokens. |
-| `python tests/test_comprehensive_validation.py` | [`tests/test_comprehensive_validation.py`](file:///tests/test_comprehensive_validation.py) | **~2.5s** | **Rapid Feature Validation Suite:** Day-to-day coding checks. Validates account profile changes, password lifecycle, Django Admin bidirectional sync, quota upgrades (15GB/100GB/500GB), and multi-file ZIP downloads. |
-| `python tests/test_live_server.py` | [`tests/test_live_server.py`](file:///tests/test_live_server.py) | ~2s | **Live HTTP Browser Integration:** End-to-end socket testing over HTTP (`http://127.0.0.1:8000`), testing real CSRF tokens, session cookies, folder creation, and anonymous public downloads *(requires `runserver` active)*. |
+1. **Standard Django Unit Tests** (19 tests)
+   ```bash
+   python manage.py test
+   ```
+   - **File:** `tests/test_unit.py` (~33s)
+   - Verifies permissions, workspace data isolation, quotas, trash lifecycle, and public sharing.
+
+2. **Rapid Feature Validation** (Consolidated 4-part suite)
+   ```bash
+   python tests/test_comprehensive_validation.py
+   ```
+   - **File:** `tests/test_comprehensive_validation.py` (**~2.5s**)
+   - Fast developer checks for profiles, passwords, admin sync, quota tiers, and batch ZIPs.
+
+3. **Live Server Integration** (Real HTTP network test)
+   ```bash
+   python tests/test_live_server.py
+   ```
+   - **File:** `tests/test_live_server.py` (~2s, requires `runserver` running)
+   - Tests live HTTP requests, session cookies, CSRF tokens, AJAX APIs, and file downloads.
 
 ---
 
