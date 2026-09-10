@@ -1,0 +1,20 @@
+<div class="flex items-center text-lg font-medium text-gray-800 space-x-2 select-none overflow-x-auto py-1">
+    <a href="{% url 'drive_root' %}" class="hover:bg-gdrive-hover px-2 py-1 rounded-lg transition flex items-center space-x-1.5 {% if not current_folder and active_tab == 'my_drive' %}text-gray-900 font-semibold{% else %}text-gray-600{% endif %}">
+        <span>My Drive</span>
+    </a>
+
+    {% for crumb in breadcrumbs %}
+        <span class="text-gray-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </span>
+        {% if forloop.last %}
+            <span class="text-gray-900 font-semibold px-2 py-1">{{ crumb.name }}</span>
+        {% else %}
+            <a href="{% url 'folder_view' crumb.id %}" class="text-gray-600 hover:bg-gdrive-hover px-2 py-1 rounded-lg transition">
+                {{ crumb.name }}
+            </a>
+        {% endif %}
+    {% endfor %}
+</div>

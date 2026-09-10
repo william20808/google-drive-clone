@@ -1,0 +1,171 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/admin_theme.css' %}?v=1.1">
+{% endblock %}
+
+{% block coltype %}colM{% endblock %}
+{% block bodyclass %}{{ block.super }} dashboard gdrive-admin-dashboard{% endblock %}
+
+{% block content_title %}{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div id="content-main" class="gdrive-admin-container">
+    <!-- Welcome Header Banner -->
+    <div class="gdrive-admin-hero">
+        <div class="gdrive-hero-content">
+            <div class="gdrive-hero-icon-wrap">
+                <img src="{% static 'img/logo.png' %}" alt="Google Drive" class="gdrive-hero-logo">
+            </div>
+            <div>
+                <h1 class="gdrive-hero-title">Admin Management Console</h1>
+                <p class="gdrive-hero-subtitle">
+                    Control user storage tiers (15 GB, 100 GB, 500 GB), manage user accounts, and monitor Google Drive cloud storage.
+                </p>
+            </div>
+        </div>
+        <div class="gdrive-hero-actions">
+            <a href="{% url 'drive_root' %}" class="gdrive-hero-btn secondary" target="_blank">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                </svg>
+                Launch Drive App
+            </a>
+            <a href="{% url 'admin:drive_userprofile_changelist' %}" class="gdrive-hero-btn primary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                Manage Storage Tiers
+            </a>
+        </div>
+    </div>
+
+    <!-- Tier Overview Cards Grid -->
+    <div class="gdrive-cards-grid">
+        <!-- Card 1: Storage Quotas & Tier Management -->
+        <div class="gdrive-card featured-card">
+            <div class="gdrive-card-header">
+                <div class="gdrive-card-icon-box storage-icon-box">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7zm0 5h16M9 9h.01M9 14h.01"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="gdrive-card-tag">Core Storage Control</span>
+                    <h2 class="gdrive-card-title">User Profiles & Storage Plans</h2>
+                </div>
+            </div>
+            <p class="gdrive-card-desc">
+                Adjust storage tiers for any user directly in the table dropdown, apply bulk upgrades, or configure custom storage limits.
+            </p>
+            <div class="gdrive-tier-pills">
+                <span class="tier-pill pill-15">🟢 15 GB (Basic)</span>
+                <span class="tier-pill pill-100">🔵 100 GB (Standard)</span>
+                <span class="tier-pill pill-500">🟣 500 GB (Premium Pro)</span>
+            </div>
+            <div class="gdrive-card-footer">
+                <a href="{% url 'admin:drive_userprofile_changelist' %}" class="gdrive-action-btn btn-primary">
+                    Open Storage Table & Tiers &rarr;
+                </a>
+                <a href="{% url 'admin:drive_userprofile_add' %}" class="gdrive-action-btn btn-subtle">
+                    + Add Plan
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 2: User Accounts & Authentication -->
+        <div class="gdrive-card">
+            <div class="gdrive-card-header">
+                <div class="gdrive-card-icon-box user-icon-box">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="gdrive-card-tag">Account Management</span>
+                    <h2 class="gdrive-card-title">Users & Directory</h2>
+                </div>
+            </div>
+            <p class="gdrive-card-desc">
+                Create new user accounts, update names and emails, reset passwords, and view each user's storage quota consumption.
+            </p>
+            <div class="gdrive-meta-hint">
+                <span>Integrated with live storage tier inline editors and quick actions.</span>
+            </div>
+            <div class="gdrive-card-footer">
+                <a href="{% url 'admin:auth_user_changelist' %}" class="gdrive-action-btn btn-primary">
+                    Manage User Directory &rarr;
+                </a>
+                <a href="{% url 'admin:auth_user_add' %}" class="gdrive-action-btn btn-subtle">
+                    + Add User
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 3: Drive Cloud Items -->
+        <div class="gdrive-card">
+            <div class="gdrive-card-header">
+                <div class="gdrive-card-icon-box file-icon-box">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="gdrive-card-tag">Cloud Storage</span>
+                    <h2 class="gdrive-card-title">Drive Items</h2>
+                </div>
+            </div>
+            <p class="gdrive-card-desc">
+                Inspect all files and folders uploaded to the system, track storage usage per file, inspect shared links, and review trash.
+            </p>
+            <div class="gdrive-meta-hint">
+                <span>Supports searching by file name, owner username, or file type.</span>
+            </div>
+            <div class="gdrive-card-footer">
+                <a href="{% url 'admin:drive_driveitem_changelist' %}" class="gdrive-action-btn btn-primary">
+                    Browse All Drive Files &rarr;
+                </a>
+                <a href="{% url 'admin:drive_driveitem_add' %}" class="gdrive-action-btn btn-subtle">
+                    + Upload Item
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Storage Guide / FAQ for Admins -->
+    <div class="gdrive-guide-card">
+        <h3 class="gdrive-guide-title">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            How to Change User Storage Limits & Tiers
+        </h3>
+        <div class="gdrive-guide-steps">
+            <div class="guide-step">
+                <div class="step-num">1</div>
+                <div>
+                    <strong>Open Storage Plans:</strong> Go to <a href="{% url 'admin:drive_userprofile_changelist' %}">User Profiles & Storage Plans</a>.
+                </div>
+            </div>
+            <div class="guide-step">
+                <div class="step-num">2</div>
+                <div>
+                    <strong>Inline Dropdown:</strong> Select <strong>15 GB</strong>, <strong>100 GB</strong>, or <strong>500 GB</strong> directly on the user's table row, then click <strong>Save</strong> at the bottom.
+                </div>
+            </div>
+            <div class="guide-step">
+                <div class="step-num">3</div>
+                <div>
+                    <strong>Bulk Upgrades:</strong> Or check multiple users, select <em>"⚡ Upgrade storage to 100 GB / 500 GB"</em> from the Action bar, and click <strong>Run</strong>.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{# Completely remove the confusing recent actions log sidebar #}
+{% block sidebar %}{% endblock %}

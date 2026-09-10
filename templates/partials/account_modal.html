@@ -1,0 +1,302 @@
+<!-- Google Account & Security Settings Modal (Material Design 3) -->
+<dialog id="modal_account" class="modal">
+    <div class="modal-box max-w-[480px] w-full rounded-[28px] p-6 sm:p-7 bg-white dark:bg-[#1e1f20] shadow-2xl border border-gray-200 dark:border-[#3c4043] transition-all">
+        <!-- Top bar: Google Account title & close button -->
+        <div class="flex items-center justify-between pb-3">
+            <div class="flex items-center gap-2 text-gray-700 dark:text-gray-200">
+                <svg class="w-5 h-5 text-[#1a73e8]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                </svg>
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Google Account</span>
+            </div>
+            <button type="button" onclick="closeAccountModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors" title="Close">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Center Profile Summary -->
+        <div class="text-center pt-2 pb-4">
+            <div class="relative inline-block">
+                <div class="w-16 h-16 rounded-full bg-[#1a73e8] text-white text-2xl font-medium flex items-center justify-center shadow-sm mx-auto select-none" id="account-modal-avatar-preview">
+                    {% if user.first_name %}{{ user.first_name|first|upper }}{% else %}{{ user.username|first|upper }}{% endif %}
+                </div>
+            </div>
+            <h3 class="text-base font-semibold text-gray-900 dark:text-white mt-2.5" id="account-modal-title">
+                {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}
+            </h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5" id="account-modal-email-preview">
+                {{ user.email|default:user.username }}
+            </p>
+
+            {% if user.is_staff or user.is_superuser %}
+            <div class="mt-2.5 flex items-center justify-center gap-2">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-[#1a73e8] dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-900/60">
+                    <svg class="w-3 h-3 text-[#1a73e8] dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    Administrator
+                </span>
+                <a href="{% url 'admin:index' %}" class="inline-flex items-center gap-1 text-[11px] font-medium text-[#1a73e8] hover:text-[#1557b0] dark:text-[#8ab4f8] hover:underline">
+                    Admin Console &rarr;
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Material 3 Underline Tabs -->
+        <div class="flex border-b border-gray-200 dark:border-[#3c4043] mb-5">
+            <button 
+                type="button" 
+                id="tab-btn-profile" 
+                onclick="switchAccountTab('profile')" 
+                class="flex-1 pb-3 text-xs sm:text-sm font-medium text-center border-b-2 border-[#1a73e8] text-[#1a73e8] dark:text-[#8ab4f8] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                Personal info
+            </button>
+            <button 
+                type="button" 
+                id="tab-btn-password" 
+                onclick="switchAccountTab('password')" 
+                class="flex-1 pb-3 text-xs sm:text-sm font-medium text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+                Security
+            </button>
+        </div>
+
+        <!-- TAB 1: Personal Info -->
+        <div id="tab-content-profile">
+            <form id="form_update_profile" onsubmit="submitUpdateProfile(event)" class="space-y-4">
+                <!-- Username (Editable) -->
+                <div>
+                    <label for="profile_username" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Username
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </span>
+                        <input 
+                            type="text" 
+                            id="profile_username" 
+                            name="username" 
+                            value="{{ user.username }}" 
+                            required 
+                            minlength="3" 
+                            placeholder="username" 
+                            class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-[#5f6368] bg-white dark:bg-[#28292c] text-gray-900 dark:text-white focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-colors"
+                        >
+                    </div>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                        Used to sign in to your Google Drive account.
+                    </p>
+                </div>
+
+                <!-- First & Last Name -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="profile_first_name" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            First name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="profile_first_name" 
+                            name="first_name" 
+                            value="{{ user.first_name }}" 
+                            placeholder="First name" 
+                            class="w-full px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-[#5f6368] bg-white dark:bg-[#28292c] text-gray-900 dark:text-white focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-colors"
+                        >
+                    </div>
+                    <div>
+                        <label for="profile_last_name" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Last name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="profile_last_name" 
+                            name="last_name" 
+                            value="{{ user.last_name }}" 
+                            placeholder="Last name" 
+                            class="w-full px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-[#5f6368] bg-white dark:bg-[#28292c] text-gray-900 dark:text-white focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-colors"
+                        >
+                    </div>
+                </div>
+
+                <!-- Email Address (Gmail) -->
+                <div>
+                    <label for="profile_email" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Email address
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </span>
+                        <input 
+                            type="email" 
+                            id="profile_email" 
+                            name="email" 
+                            value="{{ user.email }}" 
+                            placeholder="name@gmail.com" 
+                            class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-[#5f6368] bg-white dark:bg-[#28292c] text-gray-900 dark:text-white focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-colors"
+                        >
+                    </div>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                        The primary email address associated with your account.
+                    </p>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex items-center justify-end gap-2 pt-4 border-t border-gray-100 dark:border-[#3c4043] mt-5">
+                    <button 
+                        type="button" 
+                        onclick="closeAccountModal()" 
+                        class="px-5 py-2 text-xs font-medium text-[#1a73e8] dark:text-[#8ab4f8] hover:bg-blue-50 dark:hover:bg-white/5 rounded-full transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit" 
+                        id="btn-save-profile" 
+                        class="px-6 py-2 text-xs font-medium text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-full shadow-xs hover:shadow transition-all"
+                    >
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- TAB 2: Security (Password Change) -->
+        <div id="tab-content-password" class="hidden">
+            <form id="form_change_password" onsubmit="submitChangePassword(event)" class="space-y-4">
+                <!-- Current Password -->
+                <div>
+                    <label for="pwd_old" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Current password
+                    </label>
+                    <input 
+                        type="password" 
+                        id="pwd_old" 
+                        name="old_password" 
+                        required 
+                        placeholder="Enter current password" 
+                        class="w-full px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-[#5f6368] bg-white dark:bg-[#28292c] text-gray-900 dark:text-white focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-colors"
+                    >
+                </div>
+
+                <!-- New Password -->
+                <div>
+                    <label for="pwd_new1" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        New password
+                    </label>
+                    <input 
+                        type="password" 
+                        id="pwd_new1" 
+                        name="new_password1" 
+                        required 
+                        minlength="8" 
+                        placeholder="At least 8 characters" 
+                        class="w-full px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-[#5f6368] bg-white dark:bg-[#28292c] text-gray-900 dark:text-white focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-colors"
+                    >
+                </div>
+
+                <!-- Confirm New Password -->
+                <div>
+                    <label for="pwd_new2" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Confirm new password
+                    </label>
+                    <input 
+                        type="password" 
+                        id="pwd_new2" 
+                        name="new_password2" 
+                        required 
+                        placeholder="Confirm new password" 
+                        class="w-full px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-[#5f6368] bg-white dark:bg-[#28292c] text-gray-900 dark:text-white focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-colors"
+                    >
+                </div>
+
+                <!-- Security Tip -->
+                <div class="flex items-start gap-2 p-3 rounded-xl bg-gray-50 dark:bg-[#18191a] border border-gray-100 dark:border-[#3c4043] text-[11px] text-gray-600 dark:text-gray-400">
+                    <svg class="w-4 h-4 text-[#1a73e8] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Use at least 8 characters. For your security, choose a strong password that you don't use elsewhere.</span>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex items-center justify-end gap-2 pt-4 border-t border-gray-100 dark:border-[#3c4043] mt-5">
+                    <button 
+                        type="button" 
+                        onclick="closeAccountModal()" 
+                        class="px-5 py-2 text-xs font-medium text-[#1a73e8] dark:text-[#8ab4f8] hover:bg-blue-50 dark:hover:bg-white/5 rounded-full transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit" 
+                        id="btn-save-password" 
+                        class="px-6 py-2 text-xs font-medium text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-full shadow-xs hover:shadow transition-all"
+                    >
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop bg-black/50" onclick="closeAccountModal()">
+        <button type="button">close</button>
+    </form>
+</dialog>
+
+<!-- Account Modal Script -->
+<script>
+    function closeAccountModal() {
+        const modal = document.getElementById('modal_account');
+        if (modal) {
+            if (typeof modal.close === 'function') {
+                try { modal.close(); } catch (e) {}
+            }
+            modal.classList.remove('modal-open');
+            modal.removeAttribute('open');
+        }
+    }
+
+    function switchAccountTab(tab) {
+        const btnProfile = document.getElementById('tab-btn-profile');
+        const btnPassword = document.getElementById('tab-btn-password');
+        const contentProfile = document.getElementById('tab-content-profile');
+        const contentPassword = document.getElementById('tab-content-password');
+
+        if (!btnProfile || !btnPassword || !contentProfile || !contentPassword) return;
+
+        if (tab === 'password') {
+            btnPassword.classList.add('border-[#1a73e8]', 'text-[#1a73e8]', 'dark:text-[#8ab4f8]');
+            btnPassword.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+
+            btnProfile.classList.remove('border-[#1a73e8]', 'text-[#1a73e8]', 'dark:text-[#8ab4f8]');
+            btnProfile.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+
+            contentPassword.classList.remove('hidden');
+            contentProfile.classList.add('hidden');
+        } else {
+            btnProfile.classList.add('border-[#1a73e8]', 'text-[#1a73e8]', 'dark:text-[#8ab4f8]');
+            btnProfile.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+
+            btnPassword.classList.remove('border-[#1a73e8]', 'text-[#1a73e8]', 'dark:text-[#8ab4f8]');
+            btnPassword.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+
+            contentProfile.classList.remove('hidden');
+            contentPassword.classList.add('hidden');
+        }
+    }
+</script>

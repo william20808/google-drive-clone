@@ -1,0 +1,134 @@
+{% load static %}
+<aside class="w-64 bg-gdrive-bg flex flex-col justify-between p-3 select-none flex-shrink-0 h-full overflow-y-auto">
+    <div>
+        <!-- "+ New" Dropdown Button -->
+        <div class="dropdown mb-4 w-full">
+            <button tabindex="0" class="btn bg-white hover:bg-gray-50 text-gray-800 shadow-md hover:shadow-lg border border-gray-200/80 rounded-2xl normal-case h-14 px-6 space-x-3 flex items-center transition-all group">
+                <!-- Google Style Plus Icon -->
+                <svg class="w-7 h-7" viewBox="0 0 36 36">
+                    <path fill="#4285F4" d="M16 16v14h4V16h14v-4H20V-2h-4v14H2v4h14z" transform="translate(0, 4) scale(0.7)"/>
+                    <path fill="#FBBC05" d="M30 16H20l-4-4h14v4z" transform="translate(0, 4) scale(0.7)"/>
+                    <path fill="#34A853" d="M16 30V20l4-4v14h-4z" transform="translate(0, 4) scale(0.7)"/>
+                    <path fill="#EA4335" d="M20 20v10h-4V16h4z" transform="translate(0, 4) scale(0.7)"/>
+                </svg>
+                <span class="text-sm font-medium tracking-wide">New</span>
+            </button>
+
+            <ul tabindex="0" class="dropdown-content z-30 menu p-2 shadow-xl bg-white rounded-2xl w-56 border border-gdrive-border mt-1 space-y-1">
+                <li>
+                    <button type="button" onclick="openNewFolderModal()" class="flex items-center space-x-3 py-2.5 px-3 rounded-xl hover:bg-gdrive-hover text-gray-700">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                        </svg>
+                        <span class="text-sm font-medium">New folder</span>
+                    </button>
+                </li>
+                <div class="divider my-0"></div>
+                <li>
+                    <label for="hidden-file-input" class="flex items-center space-x-3 py-2.5 px-3 rounded-xl hover:bg-gdrive-hover text-gray-700 cursor-pointer">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        <span class="text-sm font-medium">File upload</span>
+                    </label>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Hidden input for file upload -->
+        <input 
+            type="file" 
+            id="hidden-file-input" 
+            class="hidden" 
+            multiple 
+            data-parent-id="{% if current_folder %}{{ current_folder.id }}{% endif %}"
+            onchange="handleFileInput(event)"
+        >
+
+        <!-- Navigation Menu -->
+        <nav class="space-y-1">
+            <a href="{% url 'drive_root' %}" class="nav-link flex items-center space-x-4 px-4 py-2.5 rounded-full text-sm font-medium text-gray-700 hover:bg-gdrive-hover transition {% if active_tab == 'my_drive' %}active{% endif %}">
+                <svg class="w-5 h-5 {% if active_tab == 'my_drive' %}text-gdrive-blue{% else %}text-gray-600{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                </svg>
+                <span>My Drive</span>
+            </a>
+
+            <a href="{% url 'starred_view' %}" class="nav-link flex items-center space-x-4 px-4 py-2.5 rounded-full text-sm font-medium text-gray-700 hover:bg-gdrive-hover transition {% if active_tab == 'starred' %}active{% endif %}">
+                <svg class="w-5 h-5 {% if active_tab == 'starred' %}text-gray-900 fill-current{% else %}text-gray-600{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+                <span>Starred</span>
+            </a>
+
+            <a href="{% url 'trash_view' %}" class="nav-link flex items-center space-x-4 px-4 py-2.5 rounded-full text-sm font-medium text-gray-700 hover:bg-gdrive-hover transition {% if active_tab == 'trash' %}active{% endif %}">
+                <svg class="w-5 h-5 {% if active_tab == 'trash' %}text-red-500{% else %}text-gray-600{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>Trash</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Storage Indicator Widget -->
+    <div class="px-2 pb-4">
+        <div class="flex items-center justify-between mb-2 text-gray-600">
+            <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
+                </svg>
+                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Storage</span>
+            </div>
+            {% if storage.plan_name %}
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
+                {{ storage.plan_name }}
+            </span>
+            {% endif %}
+        </div>
+
+        <progress 
+            id="sidebar-storage-progress"
+            class="progress progress-primary w-full h-1.5 mb-2 bg-gray-200" 
+            value="{{ storage.percent }}" 
+            max="100"
+        ></progress>
+
+        <p class="text-xs text-gray-600 mb-3">
+            <span id="sidebar-storage-text">{{ storage.formatted_used }}</span> of {{ storage.formatted_limit }} used
+        </p>
+
+        <button 
+            type="button" 
+            id="btn-get-more-storage"
+            onclick="openStoragePlansModal()" 
+            class="w-full mt-2 py-2 px-4 rounded-full text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-sm border border-[#1a73e8] bg-[#edf2fc] hover:bg-[#d3e3fd] text-[#1a73e8] dark:bg-[#1a273b] dark:border-[#8ab4f8] dark:text-[#8ab4f8] cursor-pointer select-none"
+            style="color: #1a73e8 !important; background-color: #edf2fc !important; border-color: #1a73e8 !important;"
+            onmouseenter="this.style.backgroundColor='#d3e3fd'"
+            onmouseleave="this.style.backgroundColor='#edf2fc'"
+        >
+            <svg class="w-4 h-4 text-[#1a73e8] dark:text-[#8ab4f8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="stroke: #1a73e8;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            <span style="color: #1a73e8 !important; font-weight: 600; font-size: 12px;">Get more storage</span>
+        </button>
+    </div>
+
+    <!-- Self-contained fallback script to guarantee instant opening -->
+    <script>
+        function openStoragePlansModal() {
+            const modal = document.getElementById('modal_storage_plans');
+            if (modal) {
+                if (typeof modal.showModal === 'function') {
+                    try {
+                        modal.showModal();
+                        return;
+                    } catch (err) {
+                        // Fall through to classList fallback
+                    }
+                }
+                modal.classList.add('modal-open');
+                modal.setAttribute('open', '');
+            }
+        }
+    </script>
+</aside>

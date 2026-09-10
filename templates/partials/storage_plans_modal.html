@@ -1,0 +1,336 @@
+<!-- Storage Plans Modal (Google One & Material Design 3) -->
+{% load static %}
+<dialog id="modal_storage_plans" class="modal">
+    <div class="modal-box max-w-4xl rounded-3xl p-6 sm:p-8 bg-white dark:bg-[#1f1f1f] shadow-2xl border border-gray-200 dark:border-[#444746] text-gray-900 dark:text-[#e3e3e3]">
+        <!-- Header -->
+        <div class="flex items-start justify-between pb-5 border-b border-gray-100 dark:border-[#3c4043]">
+            <div class="flex items-center space-x-3">
+                <img src="{% static 'img/logo.png' %}" alt="Google Drive" class="w-8 h-8 object-contain">
+                <div>
+                    <h3 class="text-xl font-normal text-gray-900 dark:text-white tracking-tight">
+                        Google Drive storage
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        Storage for Google Drive, Gmail, and Google Photos
+                    </p>
+                </div>
+            </div>
+            <button type="button" onclick="closeStoragePlansModal()" class="w-9 h-9 rounded-full hover:bg-gray-100 dark:hover:bg-[#2d2e30] flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition" title="Close">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Current Storage Summary Bar (Google One style) -->
+        <div class="my-5 p-4 rounded-2xl bg-[#f8fafd] dark:bg-[#282a2c] border border-gray-200/80 dark:border-[#3c4043]">
+            <div class="flex items-center justify-between text-xs mb-2">
+                <div class="flex items-center gap-2">
+                    <span class="font-medium text-gray-800 dark:text-gray-200">Current storage</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#e8f0fe] text-[#1a73e8] dark:bg-[#1a3860] dark:text-[#8ab4f8]">
+                        {{ storage.plan_name }}
+                    </span>
+                </div>
+                <span class="text-gray-600 dark:text-gray-400 font-medium">
+                    {{ storage.formatted_used }} of {{ storage.formatted_limit }} used ({{ storage.percent }}%)
+                </span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-[#3c4043] h-2 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-500" style="width: {{ storage.percent }}%; background-color: #1a73e8;"></div>
+            </div>
+        </div>
+
+        <!-- Three Storage Tier Cards (Google One Clean Layout) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-4">
+            <!-- 15 GB Plan (Basic) -->
+            <div class="rounded-2xl p-5 bg-white dark:bg-[#1e1f20] border {% if storage.plan_id == '15GB' %}border-2 border-[#1a73e8] dark:border-[#8ab4f8] bg-[#f8fafd]/60 dark:bg-[#1a2332]/30 shadow-sm{% else %}border-gray-200 dark:border-[#3c4043]{% endif %} flex flex-col justify-between transition hover:border-gray-300 dark:hover:border-neutral-600">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Basic</span>
+                        {% if storage.plan_id == '15GB' %}
+                        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#e8f0fe] text-[#1a73e8] dark:bg-[#1a3860] dark:text-[#8ab4f8]">Current plan</span>
+                        {% endif %}
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-3xl font-normal text-gray-900 dark:text-white tracking-tight">15 GB</div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-normal">Included with Google Account</p>
+                    </div>
+
+                    <div class="h-px bg-gray-100 dark:bg-[#3c4043] my-4"></div>
+
+                    <ul class="space-y-3 text-xs text-gray-600 dark:text-gray-300 mb-6">
+                        <li class="flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-[#1a73e8] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>15 GB cloud storage space</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-[#1a73e8] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>Available for Drive, Gmail, Photos</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-[#1a73e8] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>Standard file security and encryption</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="mt-3">
+                    {% if storage.plan_id == '15GB' %}
+                    <button type="button" disabled class="w-full py-2.5 px-4 rounded-full text-xs font-medium text-gray-500 bg-gray-100 dark:bg-[#282a2c] dark:text-gray-400 cursor-default border-0">
+                        Current plan
+                    </button>
+                    {% else %}
+                    <button type="button" disabled class="w-full py-2.5 px-4 rounded-full text-xs font-medium text-gray-400 bg-transparent border border-gray-200 dark:border-gray-700 cursor-default">
+                        Default tier
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 100 GB Plan (Standard) -->
+            <div class="rounded-2xl p-5 bg-white dark:bg-[#1e1f20] border {% if storage.plan_id == '100GB' %}border-2 border-[#1a73e8] dark:border-[#8ab4f8] bg-[#f8fafd]/60 dark:bg-[#1a2332]/30 shadow-sm{% else %}border-gray-200 dark:border-[#3c4043]{% endif %} flex flex-col justify-between transition hover:border-gray-300 dark:hover:border-neutral-600">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Standard</span>
+                        {% if storage.plan_id == '100GB' %}
+                        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#e8f0fe] text-[#1a73e8] dark:bg-[#1a3860] dark:text-[#8ab4f8]">Current plan</span>
+                        {% endif %}
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-3xl font-normal text-gray-900 dark:text-white tracking-tight">100 GB</div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-normal">7x more cloud storage</p>
+                    </div>
+
+                    <div class="h-px bg-gray-100 dark:bg-[#3c4043] my-4"></div>
+
+                    <ul class="space-y-3 text-xs text-gray-600 dark:text-gray-300 mb-6">
+                        <li class="flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-[#1a73e8] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span class="font-medium text-gray-900 dark:text-white">100 GB high-capacity quota</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-[#1a73e8] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>Extra space for large documents & media</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-[#1a73e8] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>High-speed batch ZIP downloads</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="mt-3">
+                    {% if storage.plan_id == '100GB' %}
+                    <button type="button" disabled class="w-full py-2.5 px-4 rounded-full text-xs font-medium text-gray-500 bg-gray-100 dark:bg-[#282a2c] dark:text-gray-400 cursor-default border-0">
+                        Current plan
+                    </button>
+                    {% else %}
+                    <button 
+                        type="button" 
+                        onclick="openContactAdminModal('100 GB (Standard)')" 
+                        class="w-full py-2.5 px-4 rounded-full text-xs font-medium bg-[#1a73e8] hover:bg-[#1557b0] text-white transition shadow-none hover:shadow-xs border-0"
+                    >
+                        Contact admin to update
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 500 GB Plan (Premium) -->
+            <div class="rounded-2xl p-5 bg-white dark:bg-[#1e1f20] border {% if storage.plan_id == '500GB' %}border-2 border-[#1a73e8] dark:border-[#8ab4f8] bg-[#f8fafd]/60 dark:bg-[#1a2332]/30 shadow-sm{% else %}border-gray-200 dark:border-[#3c4043]{% endif %} flex flex-col justify-between transition hover:border-gray-300 dark:hover:border-neutral-600">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Premium</span>
+                        {% if storage.plan_id == '500GB' %}
+                        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#e8f0fe] text-[#1a73e8] dark:bg-[#1a3860] dark:text-[#8ab4f8]">Current plan</span>
+                        {% endif %}
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-3xl font-normal text-gray-900 dark:text-white tracking-tight">500 GB</div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-normal">33x more cloud storage</p>
+                    </div>
+
+                    <div class="h-px bg-gray-100 dark:bg-[#3c4043] my-4"></div>
+
+                    <ul class="space-y-3 text-xs text-gray-600 dark:text-gray-300 mb-6">
+                        <li class="flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-[#1a73e8] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span class="font-medium text-gray-900 dark:text-white">500 GB expanded storage quota</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-[#1a73e8] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>Support for 4K video & media archives</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-[#1a73e8] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>Priority quota allocation & backup</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="mt-3">
+                    {% if storage.plan_id == '500GB' %}
+                    <button type="button" disabled class="w-full py-2.5 px-4 rounded-full text-xs font-medium text-gray-500 bg-gray-100 dark:bg-[#282a2c] dark:text-gray-400 cursor-default border-0">
+                        Current plan
+                    </button>
+                    {% else %}
+                    <button 
+                        type="button" 
+                        onclick="openContactAdminModal('500 GB (Premium)')" 
+                        class="w-full py-2.5 px-4 rounded-full text-xs font-medium bg-[#1a73e8] hover:bg-[#1557b0] text-white transition shadow-none hover:shadow-xs border-0"
+                    >
+                        Contact admin to update
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Google Workspace Admin Access Strip (clean, no yellow banner) -->
+        {% if user.is_superuser %}
+        <div class="mt-4 p-3.5 rounded-2xl bg-[#f8fafd] dark:bg-[#282a2c] border border-gray-200/80 dark:border-[#3c4043] flex items-center justify-between text-xs text-gray-600 dark:text-gray-300">
+            <div class="flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-[#1a73e8] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                <span><strong>Administrator Access:</strong> Manage storage quotas and tiers for all users in the Admin Console.</span>
+            </div>
+            <a href="{% url 'admin:drive_userprofile_changelist' %}" target="_blank" class="text-[#1a73e8] hover:underline font-medium whitespace-nowrap ml-3 inline-flex items-center gap-1">
+                <span>Open Admin Console</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Footer / Policy Note -->
+        <div class="mt-5 pt-4 border-t border-gray-100 dark:border-[#3c4043] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
+            <p>Storage is managed centrally by your administrator. Contact the administrator to update your account limits.</p>
+            <button type="button" onclick="closeStoragePlansModal()" class="px-5 py-2 rounded-full text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2d2e30] transition">
+                Close
+            </button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop bg-black/40" onclick="closeStoragePlansModal()">
+        <button type="button">close</button>
+    </form>
+</dialog>
+
+<!-- Contact Administrator Modal (Material Design 3 Style) -->
+<dialog id="modal_contact_admin" class="modal">
+    <div class="modal-box max-w-md rounded-3xl p-6 sm:p-7 bg-white dark:bg-[#1f1f1f] shadow-2xl border border-gray-200 dark:border-[#444746] text-gray-900 dark:text-[#e3e3e3]">
+        <div class="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-[#3c4043]">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-full bg-[#e8f0fe] dark:bg-[#1a3860] flex items-center justify-center text-[#1a73e8] dark:text-[#8ab4f8]">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-medium text-base text-gray-900 dark:text-white">Contact administrator</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Request storage plan update</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeContactAdminModal()" class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-[#2d2e30] flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="my-5 space-y-3.5 text-xs">
+            <div class="p-3.5 rounded-2xl bg-[#f8fafd] dark:bg-[#282a2c] border border-gray-200/80 dark:border-[#3c4043]">
+                <span class="text-gray-500 dark:text-gray-400 block mb-1">Requested tier:</span>
+                <span id="target_storage_plan_label" class="font-medium text-sm text-[#1a73e8] dark:text-[#8ab4f8]">100 GB (Standard)</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-[#f8fafd] dark:bg-[#282a2c] border border-gray-200/80 dark:border-[#3c4043]">
+                <span class="text-gray-500 dark:text-gray-400 block mb-1">Administrator email:</span>
+                <div class="flex items-center justify-between">
+                    <span id="admin_email_address" class="font-mono font-medium text-gray-900 dark:text-gray-100 text-sm">{{ admin_email|default:"admin@gmail.com" }}</span>
+                    <button 
+                        type="button" 
+                        onclick="copyAdminEmail()" 
+                        class="px-3 py-1 rounded-full text-[11px] font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-[#3c4043] transition flex items-center gap-1"
+                        id="copy_email_btn"
+                    >
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                        <span>Copy</span>
+                    </button>
+                </div>
+            </div>
+
+            <p class="text-gray-500 dark:text-gray-400 leading-relaxed">
+                Send an email request to your administrator. Once adjusted in the Admin Console, your storage quota will update immediately.
+            </p>
+        </div>
+
+        <div class="mt-5 flex items-center justify-end space-x-2">
+            <button type="button" onclick="closeContactAdminModal()" class="px-4 py-2 rounded-full text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2d2e30] transition">
+                Cancel
+            </button>
+            <a 
+                id="send_admin_email_link" 
+                href="mailto:{{ admin_email|default:'admin@gmail.com' }}?subject=Storage%20Limit%20Upgrade%20Request&body=Hi%20Admin,%0A%0APlease%20upgrade%20my%20storage%20plan%20for%20account:%20{{ request.user.username }}.%0A%0AThank%20you!" 
+                class="px-5 py-2 bg-[#1a73e8] hover:bg-[#1557b0] text-white rounded-full text-xs font-medium inline-flex items-center gap-1.5 transition shadow-none hover:shadow-xs"
+            >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                <span>Send email</span>
+            </a>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop bg-black/40" onclick="closeContactAdminModal()">
+        <button type="button">close</button>
+    </form>
+</dialog>
+
+<!-- Self-Contained Modal Handlers -->
+<script>
+    function closeStoragePlansModal() {
+        const modal = document.getElementById('modal_storage_plans');
+        if (modal) {
+            if (typeof modal.close === 'function') {
+                try { modal.close(); } catch (e) {}
+            }
+            modal.classList.remove('modal-open');
+            modal.removeAttribute('open');
+        }
+    }
+
+    function openContactAdminModal(targetPlan) {
+        const contactModal = document.getElementById('modal_contact_admin');
+        const label = document.getElementById('target_storage_plan_label');
+        const mailLink = document.getElementById('send_admin_email_link');
+        const emailElem = document.getElementById('admin_email_address');
+        const activeAdminEmail = (emailElem && emailElem.textContent.trim()) ? emailElem.textContent.trim() : '{{ admin_email|default:"admin@gmail.com" }}';
+
+        if (label && targetPlan) {
+            label.textContent = targetPlan;
+        }
+
+        if (mailLink && targetPlan) {
+            const subject = encodeURIComponent(`Storage Limit Upgrade Request: ${targetPlan}`);
+            const body = encodeURIComponent(`Hi Administrator,\n\nI would like to request an upgrade to the ${targetPlan} storage plan for my account: {{ request.user.username }}.\n\nThank you!`);
+            mailLink.href = `mailto:${encodeURIComponent(activeAdminEmail)}?subject=${subject}&body=${body}`;
+        }
+
+        if (contactModal) {
+            if (typeof contactModal.showModal === 'function') {
+                try {
+                    contactModal.showModal();
+                    return;
+                } catch (e) {}
+            }
+            contactModal.classList.add('modal-open');
+            contactModal.setAttribute('open', '');
+        }
+    }
+
+    function closeContactAdminModal() {
+        const modal = document.getElementById('modal_contact_admin');
+        if (modal) {
+            if (typeof modal.close === 'function') {
+                try { modal.close(); } catch (e) {}
+            }
+            modal.classList.remove('modal-open');
+            modal.removeAttribute('open');
+        }
+    }
+</script>

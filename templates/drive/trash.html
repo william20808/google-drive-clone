@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Trash - Google Drive{% endblock %}
+
+{% block content %}
+    <!-- Header Row -->
+    <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+        <h1 class="text-xl font-medium text-gray-800 flex items-center space-x-2">
+            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <span>Trash</span>
+        </h1>
+
+        {% if folders or files %}
+            <button type="button" onclick="confirmEmptyTrash()" class="btn btn-sm btn-ghost hover:bg-red-50 text-red-600 rounded-full normal-case space-x-1.5 border border-red-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>Empty trash</span>
+            </button>
+        {% endif %}
+    </div>
+
+    <!-- Category Filters and View Switcher -->
+    {% include 'partials/category_filters.html' %}
+
+    <!-- Content Area -->
+    <div id="drive-content-container" class="flex-1 flex flex-col mt-2 min-h-0">
+        {% if not folders and not files %}
+            <!-- Empty Trash State -->
+            <div class="flex-1 flex flex-col items-center justify-center text-center p-8 select-none my-auto min-h-[350px]">
+                <img src="{% static 'img/empty_state_trash.svg' %}" alt="Trash is empty" class="w-56 max-w-full object-contain mb-4 opacity-90 pointer-events-none">
+                <h3 class="text-lg font-medium text-gray-800">Trash is empty</h3>
+                <p class="text-sm text-gray-500 mt-1 max-w-xs">Items in trash are deleted automatically after permanent deletion or emptying trash.</p>
+            </div>
+        {% else %}
+            {% if view_mode == 'list' %}
+                {% include 'partials/item_list.html' %}
+            {% else %}
+                {% include 'partials/item_grid.html' %}
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}

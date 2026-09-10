@@ -1,0 +1,247 @@
+<div id="drive-list-container" class="list-table-container w-full bg-white rounded-2xl border border-gray-200 shadow-xs flex-1 flex flex-col">
+    <div class="table-wrapper w-full overflow-x-auto sm:overflow-x-visible">
+        <table class="table table-sm w-full">
+            <thead class="sticky top-0 z-10 bg-white/95 dark:bg-[#1e1f20]/95 backdrop-blur-xs">
+                <tr class="border-b border-gray-200 dark:border-[#3c4043] text-gray-500 font-medium text-xs">
+                    <th class="py-3 px-3 w-10 text-center">
+                        <input type="checkbox" id="select-all-checkbox" class="checkbox checkbox-xs rounded border-gray-400 checkbox-primary" onchange="selectAllItems(this.checked)" title="Select all items">
+                    </th>
+                    <th class="py-3 px-4 w-1/2">Name</th>
+                    <th class="py-3 px-4">Owner</th>
+                    <th class="py-3 px-4">Last Modified</th>
+                    <th class="py-3 px-4">File Size</th>
+                    <th class="py-3 px-4 text-right">Actions</th>
+                </tr>
+            </thead>
+        <tbody class="text-sm divide-y divide-gray-100 dark:divide-[#2d2e30]">
+            <!-- Folders First -->
+            {% for folder in folders %}
+                <tr 
+                    class="item-row hover:bg-gdrive-hover group transition cursor-pointer select-none"
+                    data-item-id="{{ folder.id }}"
+                    data-is-folder="true"
+                    data-name="{{ folder.name|escape }}"
+                    onclick="handleRowClick(event, '{{ folder.id }}')"
+                    ondblclick="location.href='{% if active_tab == 'trash' %}#{% else %}{% url 'folder_view' folder.id %}{% endif %}'"
+                >
+                    <td class="py-2.5 px-3 text-center" onclick="event.stopPropagation()">
+                        <input type="checkbox" class="item-checkbox checkbox checkbox-xs rounded border-gray-400 checkbox-primary" data-item-id="{{ folder.id }}" data-is-folder="true" data-name="{{ folder.name|escape }}" onchange="handleItemCheckboxChange(this, event)">
+                    </td>
+                    <td class="py-2.5 px-4 flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
+                        </svg>
+                        <a href="{% if active_tab == 'trash' %}javascript:void(0){% else %}{% url 'folder_view' folder.id %}{% endif %}" class="font-medium text-gray-800 hover:text-gdrive-blue truncate max-w-xs md:max-w-md">
+                            {{ folder.name }}
+                        </a>
+
+                        <!-- Direct Star Toggle -->
+                        {% if active_tab != 'trash' %}
+                            <button 
+                                type="button" 
+                                onclick="event.stopPropagation(); toggleStar('{{ folder.id }}')" 
+                                title="{% if folder.is_starred %}Remove star{% else %}Add star{% endif %}"
+                                class="p-1 rounded-full hover:bg-gray-200 transition {% if folder.is_starred %}text-gray-900{% else %}text-gray-400 opacity-0 group-hover:opacity-100 hover:text-gray-700{% endif %}"
+                            >
+                                <svg class="w-4 h-4 {% if folder.is_starred %}fill-current{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                </svg>
+                            </button>
+                        {% endif %}
+                    </td>
+                    <td class="py-2.5 px-4 text-gray-500 text-xs">me</td>
+                    <td class="py-2.5 px-4 text-gray-500 text-xs">{{ folder.updated_at|date:"M d, Y" }}</td>
+                    <td class="py-2.5 px-4 text-gray-500 text-xs">--</td>
+                    <td class="py-2.5 px-4 text-right">
+                        <div class="flex items-center justify-end space-x-1" onclick="event.stopPropagation()">
+                            {% if active_tab != 'trash' %}
+                                <!-- Direct Delete Button -->
+                                <button 
+                                    type="button" 
+                                    onclick="trashItem('{{ folder.id }}', '{{ folder.name|escapejs }}')" 
+                                    title="Move to bin"
+                                    class="btn btn-ghost btn-xs btn-circle text-gray-400 hover:text-red-600 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            {% else %}
+                                <!-- Direct Restore Button -->
+                                <button 
+                                    type="button" 
+                                    onclick="restoreItem('{{ folder.id }}', '{{ folder.name|escapejs }}')" 
+                                    title="Restore"
+                                    class="btn btn-ghost btn-xs btn-circle text-emerald-600 hover:bg-emerald-50 transition"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                </button>
+                                <!-- Direct Permanent Delete Button -->
+                                <button 
+                                    type="button" 
+                                    onclick="deletePermanent('{{ folder.id }}', '{{ folder.name|escapejs }}')" 
+                                    title="Delete forever"
+                                    class="btn btn-ghost btn-xs btn-circle text-red-600 hover:bg-red-50 transition"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            {% endif %}
+
+                            <!-- Dropdown Menu -->
+                            <div class="dropdown dropdown-end">
+                                <button tabindex="0" class="btn btn-ghost btn-xs btn-circle text-gray-500 hover:text-gray-900">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                    </svg>
+                                </button>
+                                <ul tabindex="0" class="dropdown-content z-50 menu p-2 shadow-2xl bg-white rounded-2xl w-52 border border-gray-200 text-xs space-y-0.5 text-left">
+                                    {% if active_tab != 'trash' %}
+                                        <li><a href="{% url 'folder_view' folder.id %}" class="py-2 flex items-center space-x-2"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"/></svg><span>Open folder</span></a></li>
+                                        <li><button type="button" onclick="openShareModal('{{ folder.id }}', '{{ folder.name|escapejs }}', {{ folder.is_shared|lower }}, '{{ folder.share_token|default:'' }}')" class="py-2 flex items-center space-x-2"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg><span>Share / Get link</span></button></li>
+                                        <li><button type="button" onclick="openRenameModal('{{ folder.id }}', '{{ folder.name|escapejs }}', true)" class="py-2 flex items-center space-x-2"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg><span>Rename</span></button></li>
+                                        <li><button type="button" onclick="toggleStar('{{ folder.id }}')" class="py-2 flex items-center space-x-2"><svg class="w-4 h-4 text-gray-700 {% if folder.is_starred %}fill-current{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg><span>{% if folder.is_starred %}Remove star{% else %}Add star{% endif %}</span></button></li>
+                                        <li><button type="button" onclick="openMoveModal('{{ folder.id }}', '{{ folder.name|escapejs }}', true, 'move')" class="py-2 flex items-center space-x-2"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg><span>Move to</span></button></li>
+                                        <li><button type="button" onclick="openMoveModal('{{ folder.id }}', '{{ folder.name|escapejs }}', true, 'copy')" class="py-2 flex items-center space-x-2"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg><span>Make a copy</span></button></li>
+                                        <div class="divider my-1"></div>
+                                        <li><button type="button" onclick="trashItem('{{ folder.id }}', '{{ folder.name|escapejs }}')" class="text-red-600 hover:bg-red-50 py-2 flex items-center space-x-2 font-medium"><svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg><span>Move to bin</span></button></li>
+                                    {% else %}
+                                        <li><button type="button" onclick="restoreItem('{{ folder.id }}', '{{ folder.name|escapejs }}')" class="py-2 text-emerald-600 hover:bg-emerald-50 flex items-center space-x-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg><span>Restore</span></button></li>
+                                        <li><button type="button" onclick="deletePermanent('{{ folder.id }}', '{{ folder.name|escapejs }}')" class="py-2 text-red-600 hover:bg-red-50 flex items-center space-x-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg><span>Delete forever</span></button></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+
+            <!-- Files -->
+            {% for file in files %}
+                <tr 
+                    class="item-row hover:bg-gdrive-hover group transition cursor-pointer select-none"
+                    data-item-id="{{ file.id }}"
+                    data-is-folder="false"
+                    data-name="{{ file.name|escape }}"
+                    onclick="handleRowClick(event, '{{ file.id }}')"
+                    ondblclick="handleFileDblClick('{{ file.id }}', '{{ file.name|escapejs }}', '{{ file.preview_type }}', '{{ file.file_url }}', '{{ file.formatted_size }}', '{{ file.updated_at|date:'M d, Y' }}')"
+                >
+                    <td class="py-2.5 px-3 text-center" onclick="event.stopPropagation()">
+                        <input type="checkbox" class="item-checkbox checkbox checkbox-xs rounded border-gray-400 checkbox-primary" data-item-id="{{ file.id }}" data-is-folder="false" data-name="{{ file.name|escape }}" onchange="handleItemCheckboxChange(this, event)">
+                    </td>
+                    <td class="py-2.5 px-4 flex items-center space-x-3">
+                        {% if file.preview_type == 'image' %}
+                            <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                            </svg>
+                        {% elif file.preview_type == 'video' %}
+                            <svg class="w-5 h-5 text-purple-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                            </svg>
+                        {% elif file.preview_type == 'audio' %}
+                            <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
+                            </svg>
+                        {% elif file.preview_type == 'pdf' %}
+                            <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A1 1 0 0111.293 2.707l3 3A1 1 0 0115 6.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                            </svg>
+                        {% else %}
+                            <svg class="w-5 h-5 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A1 1 0 0111.293 2.707l3 3A1 1 0 0115 6.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                            </svg>
+                        {% endif %}
+
+                        <span class="font-medium text-gray-800 truncate max-w-xs md:max-w-md" title="{{ file.name }}">{{ file.name }}</span>
+
+                        <!-- Direct Star Toggle -->
+                        {% if active_tab != 'trash' %}
+                            <button 
+                                type="button" 
+                                onclick="event.stopPropagation(); toggleStar('{{ file.id }}')" 
+                                title="{% if file.is_starred %}Remove star{% else %}Add star{% endif %}"
+                                class="p-1 rounded-full hover:bg-gray-200 transition {% if file.is_starred %}text-gray-900{% else %}text-gray-400 opacity-0 group-hover:opacity-100 hover:text-gray-700{% endif %}"
+                            >
+                                <svg class="w-4 h-4 {% if file.is_starred %}fill-current{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                </svg>
+                            </button>
+                        {% endif %}
+                    </td>
+                    <td class="py-2.5 px-4 text-gray-500 text-xs">me</td>
+                    <td class="py-2.5 px-4 text-gray-500 text-xs">{{ file.updated_at|date:"M d, Y" }}</td>
+                    <td class="py-2.5 px-4 text-gray-500 text-xs">{{ file.formatted_size }}</td>
+                    <td class="py-2.5 px-4 text-right">
+                        <div class="flex items-center justify-end space-x-1" onclick="event.stopPropagation()">
+                            {% if active_tab != 'trash' %}
+                                <!-- Direct Delete Button -->
+                                <button 
+                                    type="button" 
+                                    onclick="trashItem('{{ file.id }}', '{{ file.name|escapejs }}')" 
+                                    title="Move to bin"
+                                    class="btn btn-ghost btn-xs btn-circle text-gray-400 hover:text-red-600 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            {% else %}
+                                <!-- Direct Restore Button -->
+                                <button 
+                                    type="button" 
+                                    onclick="restoreItem('{{ file.id }}', '{{ file.name|escapejs }}')" 
+                                    title="Restore"
+                                    class="btn btn-ghost btn-xs btn-circle text-emerald-600 hover:bg-emerald-50 transition"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                </button>
+                                <!-- Direct Permanent Delete Button -->
+                                <button 
+                                    type="button" 
+                                    onclick="deletePermanent('{{ file.id }}', '{{ file.name|escapejs }}')" 
+                                    title="Delete forever"
+                                    class="btn btn-ghost btn-xs btn-circle text-red-600 hover:bg-red-50 transition"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            {% endif %}
+
+                            <!-- Dropdown Menu -->
+                            <div class="dropdown dropdown-end">
+                                <button tabindex="0" class="btn btn-ghost btn-xs btn-circle text-gray-500 hover:text-gray-900">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                    </svg>
+                                </button>
+                                <ul tabindex="0" class="dropdown-content z-50 menu p-2 shadow-2xl bg-white rounded-2xl w-52 border border-gray-200 text-xs space-y-0.5 text-left">
+                                    {% if active_tab != 'trash' %}
+                                        <li><button type="button" onclick="previewFile('{{ file.id }}', '{{ file.name|escapejs }}', '{{ file.preview_type }}', '{{ file.file_url }}', '{{ file.formatted_size }}', '{{ file.updated_at|date:'M d, Y' }}')" class="py-2 flex items-center space-x-2"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg><span>Open / Preview</span></button></li>
+                                        <li><a href="{% url 'download_file' file.id %}" class="py-2 flex items-center space-x-2"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg><span>Download</span></a></li>
+                                        <li><button type="button" onclick="openRenameModal('{{ file.id }}', '{{ file.name|escapejs }}', false)" class="py-2 flex items-center space-x-2"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg><span>Rename</span></button></li>
+                                        <li><button type="button" onclick="toggleStar('{{ file.id }}')" class="py-2 flex items-center space-x-2"><svg class="w-4 h-4 text-gray-700 {% if file.is_starred %}fill-current{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg><span>{% if file.is_starred %}Remove star{% else %}Add star{% endif %}</span></button></li>
+                                        <li><button type="button" onclick="openMoveModal('{{ file.id }}', '{{ file.name|escapejs }}', false, 'move')" class="py-2 flex items-center space-x-2"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg><span>Move to</span></button></li>
+                                        <li><button type="button" onclick="openMoveModal('{{ file.id }}', '{{ file.name|escapejs }}', false, 'copy')" class="py-2 flex items-center space-x-2"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg><span>Make a copy</span></button></li>
+                                        <li><button type="button" onclick="openShareModal('{{ file.id }}', '{{ file.name|escapejs }}', {{ file.is_shared|lower }}, '{{ file.share_token|default:'' }}')" class="py-2 flex items-center space-x-2"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg><span>Share / Get link</span></button></li>
+                                        <div class="divider my-1"></div>
+                                        <li><button type="button" onclick="trashItem('{{ file.id }}', '{{ file.name|escapejs }}')" class="text-red-600 hover:bg-red-50 py-2 flex items-center space-x-2 font-medium"><svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg><span>Move to bin</span></button></li>
+                                    {% else %}
+                                        <li><button type="button" onclick="restoreItem('{{ file.id }}', '{{ file.name|escapejs }}')" class="py-2 text-emerald-600 hover:bg-emerald-50 flex items-center space-x-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg><span>Restore</span></button></li>
+                                        <li><button type="button" onclick="deletePermanent('{{ file.id }}', '{{ file.name|escapejs }}')" class="py-2 text-red-600 hover:bg-red-50 flex items-center space-x-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg><span>Delete forever</span></button></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>

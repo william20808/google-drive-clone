@@ -1,0 +1,182 @@
+<!-- New Folder Modal -->
+<dialog id="modal_new_folder" class="modal">
+    <div class="modal-box max-w-sm rounded-3xl p-6 bg-white shadow-2xl">
+        <h3 class="font-semibold text-xl text-gray-900 mb-4">New folder</h3>
+        <form id="form_new_folder" onsubmit="submitNewFolder(event)">
+            <input 
+                type="text" 
+                id="new_folder_name" 
+                name="name" 
+                placeholder="Folder name" 
+                value="Untitled folder" 
+                required
+                class="input input-bordered w-full rounded-xl focus:border-gdrive-blue focus:outline-none mb-6 text-sm"
+            >
+            <div class="modal-action mt-0 flex justify-end space-x-2">
+                <button type="button" onclick="document.getElementById('modal_new_folder').close()" class="btn btn-ghost rounded-full normal-case text-gdrive-blue hover:bg-gdrive-hover px-5">Cancel</button>
+                <button type="submit" class="btn bg-gdrive-blue hover:bg-gdrive-blueHover text-white rounded-full normal-case px-6">Create</button>
+            </div>
+        </form>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Rename Modal -->
+<dialog id="modal_rename" class="modal">
+    <div class="modal-box max-w-sm rounded-3xl p-6 bg-white shadow-2xl">
+        <h3 class="font-semibold text-xl text-gray-900 mb-4">Rename</h3>
+        <form id="form_rename" onsubmit="submitRename(event)">
+            <input type="hidden" id="rename_item_id" name="item_id">
+            <input 
+                type="text" 
+                id="rename_input_name" 
+                name="name" 
+                required
+                class="input input-bordered w-full rounded-xl focus:border-gdrive-blue focus:outline-none mb-6 text-sm"
+            >
+            <div class="modal-action mt-0 flex justify-end space-x-2">
+                <button type="button" onclick="document.getElementById('modal_rename').close()" class="btn btn-ghost rounded-full normal-case text-gdrive-blue hover:bg-gdrive-hover px-5">Cancel</button>
+                <button type="submit" class="btn bg-gdrive-blue hover:bg-gdrive-blueHover text-white rounded-full normal-case px-6">OK</button>
+            </div>
+        </form>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Move / Copy Modal -->
+<dialog id="modal_move" class="modal">
+    <div class="modal-box max-w-md rounded-3xl p-6 bg-white shadow-2xl">
+        <h3 id="move_modal_title" class="font-semibold text-xl text-gray-900 mb-1 capitalize">Move item</h3>
+        <p id="move_modal_desc" class="text-xs text-gray-500 mb-4">Select destination folder:</p>
+        
+        <form id="form_move" onsubmit="submitMoveOrCopy(event)">
+            <input type="hidden" id="move_item_id" name="item_id">
+            <input type="hidden" id="move_mode" name="mode" value="move">
+
+            <div class="mb-6">
+                <select id="move_destination_select" class="select select-bordered w-full rounded-xl text-sm focus:border-gdrive-blue focus:outline-none">
+                    <option value="">My Drive (Root)</option>
+                </select>
+            </div>
+
+            <div class="modal-action mt-0 flex justify-end space-x-2">
+                <button type="button" onclick="document.getElementById('modal_move').close()" class="btn btn-ghost rounded-full normal-case text-gdrive-blue hover:bg-gdrive-hover px-5">Cancel</button>
+                <button type="submit" id="move_submit_btn" class="btn bg-gdrive-blue hover:bg-gdrive-blueHover text-white rounded-full normal-case px-6">Move</button>
+            </div>
+        </form>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Share Modal -->
+<dialog id="modal_share" class="modal">
+    <div class="modal-box max-w-md rounded-3xl p-6 bg-white shadow-2xl">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="font-semibold text-xl text-gray-900">Share file</h3>
+            <button type="button" onclick="document.getElementById('modal_share').close()" class="btn btn-ghost btn-xs btn-circle text-gray-400">✕</button>
+        </div>
+        <p id="share_file_name" class="text-sm text-gray-600 truncate mb-5"></p>
+
+        <div class="space-y-4">
+            <div class="p-4 rounded-2xl border border-gray-200 bg-gray-50/50 space-y-3">
+                <p class="text-xs font-semibold uppercase text-gray-500 tracking-wider">General access</p>
+                <div class="space-y-2">
+                    <label class="flex items-center space-x-3 cursor-pointer p-2 rounded-xl hover:bg-white transition">
+                        <input type="radio" name="share_access" id="share_radio_private" value="private" class="radio radio-primary radio-sm" onchange="toggleShareAccess(false)">
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">Restricted</p>
+                            <p class="text-xs text-gray-500">Only you can open this file</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer p-2 rounded-xl hover:bg-white transition">
+                        <input type="radio" name="share_access" id="share_radio_public" value="public" class="radio radio-primary radio-sm" onchange="toggleShareAccess(true)">
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">Anyone with the link</p>
+                            <p class="text-xs text-gray-500">Anyone on the Internet with this link can view</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div id="share_link_container" class="hidden space-y-2">
+                <div class="flex items-center bg-gray-100 p-2.5 rounded-xl border border-gray-200">
+                    <input type="text" id="share_url_input" readonly class="bg-transparent text-xs text-gray-700 flex-1 outline-none select-all truncate pr-2">
+                    <button type="button" onclick="copyShareUrl()" class="btn btn-xs bg-gdrive-blue text-white rounded-lg normal-case hover:bg-gdrive-blueHover px-3">
+                        Copy link
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-action mt-6 flex justify-end">
+            <button type="button" onclick="document.getElementById('modal_share').close()" class="btn bg-gdrive-blue hover:bg-gdrive-blueHover text-white rounded-full normal-case px-6">Done</button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- File Preview Modal -->
+<dialog id="modal_preview" class="modal">
+    <div class="modal-box w-11/12 max-w-5xl h-[85vh] rounded-3xl p-0 bg-white flex flex-col shadow-2xl overflow-hidden">
+        <!-- Preview Header -->
+        <div class="h-14 px-6 bg-gray-900 text-white flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center space-x-3 min-w-0 pr-4">
+                <span id="preview_file_icon" class="flex-shrink-0"></span>
+                <span id="preview_file_name" class="text-sm font-medium truncate"></span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div id="preview_reading_controls" class="flex items-center space-x-1 sm:space-x-2"></div>
+                <a id="preview_download_btn" href="#" download class="btn btn-ghost btn-sm text-white hover:bg-white/10 normal-case rounded-full space-x-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    <span>Download</span>
+                </a>
+                <button type="button" onclick="document.getElementById('modal_preview').close()" class="btn btn-ghost btn-sm btn-circle text-white hover:bg-white/10">✕</button>
+            </div>
+        </div>
+
+        <!-- Preview Body Content Container -->
+        <div id="preview_content_area" class="flex-1 bg-gray-950 flex items-center justify-center p-4 overflow-auto">
+            <!-- Dynamic Content Injected via JS -->
+        </div>
+
+        <!-- Preview Footer Metadata -->
+        <div class="h-10 px-6 bg-gray-900 text-xs text-gray-400 flex items-center justify-between border-t border-gray-800 flex-shrink-0">
+            <span id="preview_file_size"></span>
+            <span id="preview_file_date"></span>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop bg-black/70">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Confirmation Modal (Delete / Empty Trash) -->
+<dialog id="modal_confirm_delete" class="modal">
+    <div class="modal-box max-w-sm rounded-3xl p-6 bg-white shadow-2xl">
+        <h3 id="confirm_delete_title" class="font-semibold text-xl text-gray-900 mb-2">Delete forever?</h3>
+        <p id="confirm_delete_message" class="text-sm text-gray-600 mb-6">This item will be deleted forever and you won't be able to restore it.</p>
+        <div class="modal-action mt-0 flex justify-end space-x-2">
+            <button type="button" onclick="document.getElementById('modal_confirm_delete').close()" class="btn btn-ghost rounded-full normal-case text-gray-700 hover:bg-gray-100 px-5">Cancel</button>
+            <button type="button" id="confirm_delete_btn" class="btn btn-error text-white rounded-full normal-case px-6">Delete forever</button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Storage Plans & Contact Admin Modals -->
+{% include 'partials/storage_plans_modal.html' %}
+
+<!-- Account Settings & Password Change Modal -->
+{% include 'partials/account_modal.html' %}

@@ -1,0 +1,615 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --gdrive-bg: #f8fafd;
+    --gdrive-sidebar: #f8fafd;
+    --gdrive-surface: #ffffff;
+    --gdrive-border: #e0e5eb;
+    --gdrive-hover: #edf2fc;
+    --gdrive-active: #c2e7ff;
+    --gdrive-blue: #1a73e8;
+    --gdrive-blue-hover: #1557b0;
+    --gdrive-text: #1f1f1f;
+    --gdrive-text-secondary: #444746;
+
+    /* Override DaisyUI primary color from purple to Google Drive Blue */
+    --p: 217 89% 51%;
+    --primary: #1a73e8;
+}
+
+/* Global Tab Overrides - Never purple, always Google Drive Blue */
+.tabs-boxed .tab.tab-active,
+.tabs-boxed .tab-active:not(.tab-disabled):not([disabled]) {
+    background-color: #1a73e8 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"],
+html.dark {
+    --gdrive-bg: #131314;
+    --gdrive-sidebar: #131314;
+    --gdrive-surface: #1e1f20;
+    --gdrive-border: #3c4043;
+    --gdrive-hover: #28292c;
+    --gdrive-active: #004a77;
+    --gdrive-blue: #8ab4f8;
+    --gdrive-blue-hover: #aecbfa;
+    --gdrive-text: #e3e3e3;
+    --gdrive-text-secondary: #9aa0a6;
+    color-scheme: dark;
+
+    --p: 217 89% 73%;
+    --primary: #8ab4f8;
+}
+
+[data-theme="dark"] .tabs-boxed .tab.tab-active,
+html.dark .tabs-boxed .tab.tab-active {
+    background-color: #1a73e8 !important;
+    color: #ffffff !important;
+}
+
+html,
+body {
+    font-family: 'Google Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--gdrive-bg);
+    color: var(--gdrive-text);
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Remove whole-window scrollbar: only inside document scrolls */
+}
+
+/* Document Inside Container Scrollbar */
+#main-dropzone {
+    height: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Drag & Drop Overlay */
+.dropzone-active {
+    outline: 3px dashed #0b57d0 !important;
+    outline-offset: -8px;
+    background-color: rgba(194, 231, 255, 0.25) !important;
+}
+
+/* Card Structure & Stacking */
+.drive-card {
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    border-radius: 1rem !important;
+    overflow: visible !important;
+}
+.drive-card:hover,
+.drive-card:focus-within {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+    z-index: 60 !important;
+}
+.drive-card:has(.dropdown:focus-within),
+.drive-card:has(.dropdown-content:focus) {
+    z-index: 90 !important;
+}
+
+/* Folder Card: Strict Horizontal Row Layout (Google Drive Pill Style) */
+.drive-folder-card,
+.drive-card[data-is-folder="true"] {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    overflow: visible !important;
+}
+
+/* File Card: Strict Google Drive Vertical Layout */
+.drive-file-card,
+.drive-card[data-is-folder="false"] {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+}
+.drive-card .card-header-bar {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-shrink: 0 !important;
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+    position: relative !important;
+    z-index: 35 !important;
+    overflow: visible !important;
+}
+.drive-card .card-preview-area {
+    width: 100% !important;
+    height: 145px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+    z-index: 10 !important;
+}
+.drive-card .card-footer-bar {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-shrink: 0 !important;
+    margin-top: auto !important;
+    border-bottom-left-radius: 1rem !important;
+    border-bottom-right-radius: 1rem !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Card Context Dropdown Scroll & Visibility (Natural Vertical Display & Smooth Scrolling) */
+.drive-card .dropdown {
+    position: relative !important;
+    overflow: visible !important;
+}
+.drive-card .dropdown-content {
+    max-height: calc(100vh - 120px) !important;
+    min-height: auto !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    z-index: 100 !important;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08) !important;
+}
+.dropdown-content::-webkit-scrollbar {
+    width: 5px !important;
+}
+.dropdown-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1 !important;
+    border-radius: 9999px !important;
+}
+.dropdown-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8 !important;
+}
+[data-theme="dark"] .dropdown-content::-webkit-scrollbar-thumb {
+    background: #4b5563 !important;
+}
+[data-theme="dark"] .dropdown-content::-webkit-scrollbar-thumb:hover {
+    background: #6b7280 !important;
+}
+
+
+
+/* Active Nav Links */
+.nav-link.active {
+    background-color: var(--gdrive-active);
+    color: #001d35;
+    font-weight: 600;
+}
+
+/* Modal enhancements */
+dialog.modal {
+    transition: opacity 0.2s ease-in-out;
+}
+dialog.modal::backdrop {
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+/* Truncation utility */
+.truncate-2-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* List View Full Page Container & Scroll Control */
+.list-table-container {
+    overflow: visible !important;
+    position: relative;
+}
+
+.list-table-container .table-wrapper {
+    overflow: visible;
+}
+
+@media (max-width: 768px) {
+    .list-table-container .table-wrapper {
+        overflow-x: auto;
+        overflow-y: visible;
+    }
+}
+
+/* Ensure no unwanted vertical scrollbar inside list container */
+.list-table-container,
+.list-table-container table,
+.list-table-container tbody {
+    overflow-y: visible !important;
+}
+
+/* ==============================================================================
+   Dark Mode Component Styles
+   ============================================================================== */
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: #3c4043;
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: #5f6368;
+}
+
+[data-theme="dark"] .dropzone-active {
+    outline-color: #8ab4f8 !important;
+    background-color: rgba(0, 74, 119, 0.35) !important;
+}
+[data-theme="dark"] #drag-overlay {
+    background-color: rgba(30, 31, 32, 0.95) !important;
+    border-color: #8ab4f8 !important;
+}
+
+/* Header & Search in Dark Mode */
+[data-theme="dark"] header {
+    background-color: var(--gdrive-bg) !important;
+    border-color: var(--gdrive-border) !important;
+    color: var(--gdrive-text) !important;
+}
+[data-theme="dark"] #search-input {
+    background-color: #28292c !important;
+    color: #e3e3e3 !important;
+    border-color: transparent !important;
+}
+[data-theme="dark"] #search-input:hover {
+    background-color: #303134 !important;
+}
+[data-theme="dark"] #search-input:focus {
+    background-color: #1e1f20 !important;
+    border-color: var(--gdrive-blue) !important;
+}
+[data-theme="dark"] #search-input::placeholder {
+    color: var(--gdrive-text-secondary) !important;
+}
+
+/* Sidebar in Dark Mode */
+[data-theme="dark"] aside {
+    background-color: var(--gdrive-bg) !important;
+}
+[data-theme="dark"] aside .btn.bg-white {
+    background-color: #2b2c2f !important;
+    color: #e3e3e3 !important;
+    border-color: var(--gdrive-border) !important;
+}
+[data-theme="dark"] aside .btn.bg-white:hover {
+    background-color: #38393d !important;
+}
+[data-theme="dark"] .nav-link {
+    color: #c4c7c5 !important;
+}
+[data-theme="dark"] .nav-link:hover {
+    background-color: var(--gdrive-hover) !important;
+    color: #ffffff !important;
+}
+[data-theme="dark"] .nav-link.active {
+    background-color: var(--gdrive-active) !important;
+    color: #c2e7ff !important;
+}
+[data-theme="dark"] .nav-link.active svg {
+    color: #c2e7ff !important;
+}
+
+/* Main Surface & Dropzone */
+[data-theme="dark"] #main-dropzone {
+    background-color: var(--gdrive-surface) !important;
+    border-color: var(--gdrive-border) !important;
+}
+[data-theme="dark"] #main-content-wrapper {
+    color: var(--gdrive-text);
+}
+
+/* Category Filters & View Switcher */
+[data-theme="dark"] .badge.bg-white {
+    background-color: #252628 !important;
+    color: #c4c7c5 !important;
+    border-color: var(--gdrive-border) !important;
+}
+[data-theme="dark"] .badge.bg-white:hover {
+    background-color: #303134 !important;
+    color: #ffffff !important;
+}
+[data-theme="dark"] .badge.bg-gdrive-active {
+    background-color: var(--gdrive-active) !important;
+    color: #c2e7ff !important;
+    border-color: transparent !important;
+}
+[data-theme="dark"] .bg-gray-100 {
+    background-color: #252628 !important;
+    border-color: var(--gdrive-border) !important;
+}
+[data-theme="dark"] .bg-gray-100 .bg-white {
+    background-color: #38393d !important;
+    color: var(--gdrive-blue) !important;
+}
+
+/* List View Table */
+[data-theme="dark"] .list-table-container {
+    background-color: var(--gdrive-surface) !important;
+    border-color: var(--gdrive-border) !important;
+}
+[data-theme="dark"] .list-table-container thead {
+    background-color: rgba(30, 31, 32, 0.95) !important;
+    color: var(--gdrive-text-secondary) !important;
+}
+[data-theme="dark"] .list-table-container thead tr {
+    border-color: var(--gdrive-border) !important;
+}
+[data-theme="dark"] .list-table-container tbody tr {
+    border-color: #28292c !important;
+}
+[data-theme="dark"] .list-table-container tbody tr:hover {
+    background-color: var(--gdrive-hover) !important;
+}
+[data-theme="dark"] .list-table-container tbody td {
+    color: #e3e3e3 !important;
+}
+[data-theme="dark"] .list-table-container tbody td a,
+[data-theme="dark"] .list-table-container tbody td span {
+    color: #e3e3e3 !important;
+}
+[data-theme="dark"] .list-table-container tbody td a:hover {
+    color: var(--gdrive-blue) !important;
+}
+[data-theme="dark"] .list-table-container tbody td .text-gray-500 {
+    color: var(--gdrive-text-secondary) !important;
+}
+
+/* Grid View Cards */
+[data-theme="dark"] .drive-card {
+    background-color: #252628 !important;
+    border-color: var(--gdrive-border) !important;
+    color: #e3e3e3 !important;
+}
+[data-theme="dark"] .drive-card:hover {
+    background-color: #2d2e31 !important;
+    border-color: #5f6368 !important;
+}
+[data-theme="dark"] .drive-card .bg-gray-50\/70,
+[data-theme="dark"] .drive-card .bg-gray-50\/90 {
+    background-color: #1e1f20 !important;
+    border-color: var(--gdrive-border) !important;
+}
+[data-theme="dark"] .drive-card .bg-white {
+    background-color: #252628 !important;
+    border-color: var(--gdrive-border) !important;
+}
+[data-theme="dark"] .drive-card span,
+[data-theme="dark"] .drive-card h2,
+[data-theme="dark"] .drive-card h3 {
+    color: #e3e3e3 !important;
+}
+[data-theme="dark"] .drive-card .text-gray-800 {
+    color: #e8eaed !important;
+}
+[data-theme="dark"] .drive-card .text-gray-700 {
+    color: #dadce0 !important;
+}
+[data-theme="dark"] .drive-card .text-gray-600 {
+    color: #bdc1c6 !important;
+}
+[data-theme="dark"] .drive-card .text-gray-500 {
+    color: var(--gdrive-text-secondary) !important;
+}
+[data-theme="dark"] .drive-card .badge {
+    background-color: #1e1f20 !important;
+    color: #c4c7c5 !important;
+    border-color: var(--gdrive-border) !important;
+}
+
+/* Dropdowns & Modals */
+[data-theme="dark"] .dropdown-content {
+    background-color: #252628 !important;
+    border-color: var(--gdrive-border) !important;
+    color: #e3e3e3 !important;
+}
+[data-theme="dark"] .dropdown-content a,
+[data-theme="dark"] .dropdown-content button {
+    color: #e3e3e3 !important;
+}
+[data-theme="dark"] .dropdown-content a:hover,
+[data-theme="dark"] .dropdown-content button:hover {
+    background-color: #35363a !important;
+    color: #ffffff !important;
+}
+[data-theme="dark"] .dropdown-content .divider {
+    border-color: var(--gdrive-border) !important;
+}
+[data-theme="dark"] .dropdown-content .card-body {
+    color: #e3e3e3 !important;
+}
+[data-theme="dark"] .dropdown-content .bg-gray-50 {
+    background-color: #1e1f20 !important;
+    border-color: var(--gdrive-border) !important;
+}
+
+[data-theme="dark"] .modal-box {
+    background-color: #202124 !important;
+    color: #e8eaed !important;
+    border: 1px solid var(--gdrive-border) !important;
+}
+[data-theme="dark"] .modal-box h3 {
+    color: #ffffff !important;
+}
+[data-theme="dark"] .modal-box input,
+[data-theme="dark"] .modal-box select {
+    background-color: #2b2c2f !important;
+    color: #ffffff !important;
+    border-color: var(--gdrive-border) !important;
+}
+[data-theme="dark"] .modal-box input:focus,
+[data-theme="dark"] .modal-box select:focus {
+    border-color: var(--gdrive-blue) !important;
+}
+[data-theme="dark"] .modal-box .bg-gray-50 {
+    background-color: #28292c !important;
+    border-color: var(--gdrive-border) !important;
+}
+[data-theme="dark"] .modal-box .text-gray-900 {
+    color: #ffffff !important;
+}
+[data-theme="dark"] .modal-box .text-gray-700 {
+    color: #dadce0 !important;
+}
+[data-theme="dark"] .modal-box .text-gray-500 {
+    color: var(--gdrive-text-secondary) !important;
+}
+
+/* Auth Cards */
+[data-theme="dark"] .card.bg-white {
+    background-color: #202124 !important;
+    border-color: var(--gdrive-border) !important;
+    color: #e8eaed !important;
+}
+[data-theme="dark"] .card.bg-white h1,
+[data-theme="dark"] .card.bg-white .text-gray-800 {
+    color: #ffffff !important;
+}
+[data-theme="dark"] .card.bg-white input {
+    background-color: #2b2c2f !important;
+    color: #ffffff !important;
+    border-color: var(--gdrive-border) !important;
+}
+[data-theme="dark"] .card.bg-white label .label-text {
+    color: #dadce0 !important;
+}
+
+/* Global Dark Utilities */
+[data-theme="dark"] .text-gray-900,
+[data-theme="dark"] .text-gray-800 {
+    color: #e8eaed !important;
+}
+[data-theme="dark"] .text-gray-700 {
+    color: #dadce0 !important;
+}
+[data-theme="dark"] .text-gray-600 {
+    color: #bdc1c6 !important;
+}
+[data-theme="dark"] .text-gray-500 {
+    color: var(--gdrive-text-secondary) !important;
+}
+[data-theme="dark"] .border-gray-100,
+[data-theme="dark"] .border-gray-200 {
+    border-color: var(--gdrive-border) !important;
+}
+[data-theme="dark"] .bg-gray-50 {
+    background-color: #1e1f20 !important;
+}
+[data-theme="dark"] .hover\:bg-gray-100:hover {
+    background-color: #2d2e30 !important;
+}
+[data-theme="dark"] .hover\:bg-gray-200:hover {
+    background-color: #35363a !important;
+}
+[data-theme="dark"] .btn-ghost:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+}
+[data-theme="dark"] .btn-outline {
+    border-color: var(--gdrive-border) !important;
+    color: #e3e3e3 !important;
+}
+[data-theme="dark"] .btn-outline:hover {
+    background-color: #35363a !important;
+    color: #ffffff !important;
+}
+[data-theme="dark"] .badge.bg-gray-100 {
+    background-color: #28292c !important;
+    color: #c4c7c5 !important;
+}
+
+/* ==========================================================================
+   Google Drive Instant Search Overlay Dropdown
+   ========================================================================== */
+
+#search-autocomplete-dropdown {
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16);
+    border-color: var(--gdrive-border);
+}
+
+.search-result-item {
+    transition: background-color 0.12s ease-in-out;
+}
+
+.search-result-item:hover,
+.search-result-item.selected {
+    background-color: #f1f3f4;
+}
+
+/* Dark Mode Search Dropdown (matching Google Drive screenshot) */
+[data-theme="dark"] #search-autocomplete-dropdown,
+html.dark #search-autocomplete-dropdown {
+    background-color: #252628 !important;
+    border-color: #3c4043 !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
+    color: #e3e3e3 !important;
+}
+
+[data-theme="dark"] #search-autocomplete-dropdown .search-result-item:hover,
+html.dark #search-autocomplete-dropdown .search-result-item:hover,
+[data-theme="dark"] #search-autocomplete-dropdown .search-result-item.selected,
+html.dark #search-autocomplete-dropdown .search-result-item.selected {
+    background-color: #35363a !important;
+}
+
+[data-theme="dark"] #search-type-filters,
+html.dark #search-type-filters {
+    background-color: #1e1f20 !important;
+    border-color: #3c4043 !important;
+}
+
+[data-theme="dark"] #search-type-filters button,
+html.dark #search-type-filters button {
+    background-color: #2d2e30 !important;
+    color: #c4c7c5 !important;
+    border: 1px solid #3c4043;
+}
+
+[data-theme="dark"] #search-type-filters button:hover,
+html.dark #search-type-filters button:hover {
+    background-color: #38393c !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] #search-autocomplete-dropdown .divide-gray-100 > * + *,
+html.dark #search-autocomplete-dropdown .divide-gray-100 > * + * {
+    border-color: #35363a !important;
+}
+
+[data-theme="dark"] #search-autocomplete-dropdown .border-gray-100,
+html.dark #search-autocomplete-dropdown .border-gray-100 {
+    border-color: #3c4043 !important;
+}
+
+[data-theme="dark"] #search-autocomplete-dropdown .bg-gray-50\/80,
+html.dark #search-autocomplete-dropdown .bg-gray-50\/80,
+[data-theme="dark"] #search-autocomplete-dropdown .bg-gray-50\/50,
+html.dark #search-autocomplete-dropdown .bg-gray-50\/50 {
+    background-color: #1e1f20 !important;
+}
+
