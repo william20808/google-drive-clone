@@ -8,7 +8,7 @@ A modern, high-performance, single-port Google Drive web application built with 
 
 ## 1. Prerequisites
 
-- **Python 3.10+** (Python 3.11 or 3.12 recommended)
+- **Python 3.10+** (Python 3.11 or 3.12 or 3.13 recommended)
 - **Git**
 - *(Optional)* **Docker & Docker Compose** (for one-command containerized launch)
 
@@ -111,7 +111,7 @@ All test suites are located in the [`tests/`](file:///tests/) directory:
    ```bash
    python manage.py test
    ```
-   - **File:** `tests/test_unit.py` (~33s)
+   - **File:** `tests/test_unit.py` (~40s)
    - Verifies permissions, workspace data isolation, quotas, trash lifecycle, and public sharing.
 
 2. **Rapid Feature Validation** (Consolidated 4-part suite)
