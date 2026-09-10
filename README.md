@@ -105,13 +105,13 @@ If running directly on your host machine with Python:
 ---
 
 ### Automated Testing
-```bash
-# Standard Django test suite (19 tests)
-python manage.py test
+All automated tests are organized together in the [`tests/`](file:///tests/) directory to support both formal grading and fast developer verification:
 
-# Fast consolidated feature validation suite (~2.5s)
-python test_comprehensive_validation.py
-```
+| Command | File Location | Speed | What It Tests & When to Use |
+| :--- | :--- | :--- | :--- |
+| `python manage.py test` | [`tests/test_unit.py`](file:///tests/test_unit.py) | ~33s | **Standard Django Test Suite (19 tests):** Formal evaluation and CI/CD. Runs in an isolated temporary database testing workspace isolation, upload quotas, trash lifecycle, permissions, and sharing tokens. |
+| `python tests/test_comprehensive_validation.py` | [`tests/test_comprehensive_validation.py`](file:///tests/test_comprehensive_validation.py) | **~2.5s** | **Rapid Feature Validation Suite:** Day-to-day coding checks. Validates account profile changes, password lifecycle, Django Admin bidirectional sync, quota upgrades (15GB/100GB/500GB), and multi-file ZIP downloads. |
+| `python tests/test_live_server.py` | [`tests/test_live_server.py`](file:///tests/test_live_server.py) | ~2s | **Live HTTP Browser Integration:** End-to-end socket testing over HTTP (`http://127.0.0.1:8000`), testing real CSRF tokens, session cookies, folder creation, and anonymous public downloads *(requires `runserver` active)*. |
 
 ---
 
@@ -152,17 +152,19 @@ google-drive-clone/
 │   ├── views.py            # File views, API endpoints, batch handlers
 │   ├── utils.py            # Storage calculation & email cache
 │   ├── forms.py            # Authentication & profile forms
-│   └── tests.py            # Unit & integration test cases
+│   └── tests.py            # Test discovery delegate (imports from tests/)
 ├── gdrive_project/         # Django project configuration (settings, URLs, WSGI)
 ├── media/                  # Uploaded files storage (media/uploads/user_<id>/)
 ├── static/                 # Static CSS, JS preview engine, images
 ├── templates/              # HTML templates (drive views, modals, admin, auth)
+├── tests/                  # Consolidated automated test suite
+│   ├── test_unit.py        # 19 core Django unit & isolation test cases
+│   ├── test_comprehensive_validation.py # Fast consolidated feature validation
+│   └── test_live_server.py # Live HTTP server & AJAX integration tests
 ├── Dockerfile              # Docker container definition (Python 3.11-slim)
 ├── docker-compose.yml      # Docker Compose setup with persistent volumes
 ├── manage.py               # Django management script
 ├── seed_demo.py            # Database reset & seed script
-├── test_comprehensive_validation.py # Squeezed functional validation suite
-├── test_live_server.py     # Live server integration test script
 ├── requirements.txt        # Python package dependencies
 ├── LICENSE                 # MIT License
 └── README.md               # Project documentation
