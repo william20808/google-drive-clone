@@ -128,34 +128,6 @@ All test suites are located in the [`tests/`](file:///tests/) directory:
 
 ---
 
-### Optional: Deploying with PostgreSQL (Production Server Database)
-By default, the project runs on **SQLite** for zero-configuration simplicity. To deploy with a server database like **PostgreSQL** (e.g., Render, Railway, Supabase, AWS RDS):
-
-1. Install PostgreSQL driver:
-   ```bash
-   pip install psycopg2-binary
-   ```
-2. Update `DATABASES` in `gdrive_project/settings.py` (or use `DATABASE_URL` with `dj-database-url`):
-   ```python
-   DATABASES = {
-       'default': {
-           'ENGINE': 'django.db.backends.postgresql',
-           'NAME': 'gdrive_db',
-           'USER': 'postgres',
-           'PASSWORD': 'your_password',
-           'HOST': 'localhost',  # or cloud database host
-           'PORT': '5432',
-       }
-   }
-   ```
-3. Run migrations and seed data:
-   ```bash
-   python manage.py migrate
-   python seed_demo.py
-   ```
-
----
-
 ## 4. Structure
 
 ```text
@@ -220,3 +192,42 @@ Both `demo` and `admin` accounts come pre-seeded with 5 sample files (~16.5 KB t
 - **Django Admin Console:** Complete administrative interface at `/admin/` for user management and quota adjustments.
 - **Zero-Lag Dark / Light Mode:** Instant theme switcher with browser local persistence.
 - **Enterprise-Grade Security:** Strict workspace isolation, CSRF protection, and unpopulated login forms.
+
+---
+
+## 7. Database & Security
+
+### Database Configuration (SQLite vs. PostgreSQL)
+- **Default Database (SQLite):** Pre-configured out of the box for zero-setup local development and rapid testing (`db.sqlite3`).
+- **Production Server Database (PostgreSQL):** To deploy on cloud platforms (e.g., Render, Railway, AWS RDS, Supabase):
+  1. Install PostgreSQL driver:
+     ```bash
+     pip install psycopg2-binary
+     ```
+  2. Configure `DATABASES` in `gdrive_project/settings.py` (or set `DATABASE_URL`):
+     ```python
+     DATABASES = {
+         'default': {
+             'ENGINE': 'django.db.backends.postgresql',
+             'NAME': 'gdrive_db',
+             'USER': 'postgres',
+             'PASSWORD': 'your_password',
+             'HOST': 'localhost',  # or cloud database host
+             'PORT': '5432',
+         }
+     }
+     ```
+  3. Run migrations and seed data:
+     ```bash
+     python manage.py migrate
+     python seed_demo.py
+     ```
+
+### Security & Hardening Checklist
+- **⚠️ Disable Debug Mode in Production (`DEBUG = False`):**
+  - Always set `DJANGO_DEBUG=False` in environment variables (or `DEBUG = False` in `gdrive_project/settings.py`) before deploying publicly.
+  - *Why:* Running with `DEBUG = True` leaks internal file paths, database queries, and environment settings in browser traceback screens if an error occurs.
+- **Allowed Hosts (`ALLOWED_HOSTS`):** Restrict `ALLOWED_HOSTS = ['yourdomain.com']` in production instead of using the development wildcard `['*']`.
+- **Secret Key Protection:** Provide a strong, unique `DJANGO_SECRET_KEY` via environment variables.
+- **Form Hardening:** Forms use `autocomplete="off"` to prevent automatic browser credential pre-population, and all default pre-filled credentials have been eliminated.
+- **Workspace Data Isolation:** Strict user isolation ensures users can never access, modify, or download other users' files without an explicit share token.
