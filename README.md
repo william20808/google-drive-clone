@@ -2,6 +2,8 @@
 
 A modern, high-performance, single-port Google Drive web application built with **Python 3**, **Django 5**, and a sleek **Tailwind CSS / DaisyUI** interface.
 
+![Google Drive Clone Dashboard Preview](static/img/dashboard_preview.png)
+
 ---
 
 ## 1. Prerequisites
