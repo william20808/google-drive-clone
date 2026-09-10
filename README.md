@@ -35,15 +35,33 @@ This project is built upon the conceptual layout and visual design of **[google-
 
 ---
 
-## 3. Setup
+## 3. Setup & How to Run
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/william20808/google-drive-clone.git
-   cd google-drive-clone
-   ```
+Clone the repository first:
+```bash
+git clone https://github.com/william20808/google-drive-clone.git
+cd google-drive-clone
+```
 
-2. **Create and activate virtual environment:**
+Choose **Option A** (Docker — fastest) or **Option B** (Local Python):
+
+### 🐳 Option A: Docker (One Command — No Python Setup Needed)
+If you have Docker installed, you do not need to install Python, create a virtual environment, or run migrations manually:
+
+```bash
+docker compose up --build
+```
+- **App URL:** [http://localhost:8000/](http://localhost:8000/)
+- **Admin Console:** [http://localhost:8000/admin/](http://localhost:8000/admin/)
+- Database (`db.sqlite3`) and uploads (`media/`) automatically persist on your host machine.
+- Stop container with: `docker compose down`
+
+---
+
+### 💻 Option B: Local Python Setup (Without Docker)
+If running directly on your host machine with Python:
+
+1. **Create and activate virtual environment:**
    - **Windows (PowerShell):**
      ```powershell
      python -m venv .venv
@@ -55,21 +73,73 @@ This project is built upon the conceptual layout and visual design of **[google-
      source .venv/bin/activate
      ```
 
-3. **Install dependencies:**
+2. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Run database migrations:**
+3. **Run database migrations & seed initial database:**
    ```bash
    python manage.py migrate
-   ```
-
-5. **Seed initial showcase database:**
-   ```bash
    python seed_demo.py
    ```
    *Seeds `demo` and `admin` accounts with identical copies of the 5 lightweight sample files.*
+
+4. **Start the local server:**
+   ```bash
+   python manage.py runserver
+   ```
+   - **App URL:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+   - **Admin Console:** [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
+
+---
+
+### Default Showcase Credentials
+| Account Role | Username | Password | Purpose & Access |
+| :--- | :--- | :--- | :--- |
+| **Demo User** | `demo` | `DemoPassword123!` | Standard user with the 5 pre-loaded showcase files in their drive |
+| **Administrator** | `admin` | `AdminPassword123!` | Superuser with the 5 showcase files in their drive + full Django Admin Console access (`/admin/`) |
+
+> **Security Note:** Both accounts have identical copies of the 5 showcase documents in their individual drives. Login forms do not contain hardcoded or pre-filled credentials.
+
+---
+
+### Automated Testing
+```bash
+# Standard Django test suite (19 tests)
+python manage.py test
+
+# Fast consolidated feature validation suite (~2.5s)
+python test_comprehensive_validation.py
+```
+
+---
+
+### Optional: Deploying with PostgreSQL (Production Server Database)
+By default, the project runs on **SQLite** for zero-configuration simplicity. To deploy with a server database like **PostgreSQL** (e.g., Render, Railway, Supabase, AWS RDS):
+
+1. Install PostgreSQL driver:
+   ```bash
+   pip install psycopg2-binary
+   ```
+2. Update `DATABASES` in `gdrive_project/settings.py` (or use `DATABASE_URL` with `dj-database-url`):
+   ```python
+   DATABASES = {
+       'default': {
+           'ENGINE': 'django.db.backends.postgresql',
+           'NAME': 'gdrive_db',
+           'USER': 'postgres',
+           'PASSWORD': 'your_password',
+           'HOST': 'localhost',  # or cloud database host
+           'PORT': '5432',
+       }
+   }
+   ```
+3. Run migrations and seed data:
+   ```bash
+   python manage.py migrate
+   python seed_demo.py
+   ```
 
 ---
 
@@ -100,70 +170,7 @@ google-drive-clone/
 
 ---
 
-## 5. How to Run
-
-### Option A: Local Development Server
-```bash
-python manage.py runserver
-```
-- **App URL:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-- **Admin Console:** [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
-
-### Option B: Docker (One Command)
-```bash
-docker compose up --build
-```
-- **App URL:** [http://localhost:8000/](http://localhost:8000/)
-- **Admin Console:** [http://localhost:8000/admin/](http://localhost:8000/admin/)
-- Database (`db.sqlite3`) and uploads (`media/`) persist on your host machine.
-- Stop container with: `docker compose down`
-
-### Default Showcase Credentials
-| Account Role | Username | Password | Purpose & Access |
-| :--- | :--- | :--- | :--- |
-| **Demo User** | `demo` | `DemoPassword123!` | Standard user with the 5 pre-loaded showcase files in their drive |
-| **Administrator** | `admin` | `AdminPassword123!` | Superuser with the 5 showcase files in their drive + full Django Admin Console access (`/admin/`) |
-
-> **Security Note:** Both accounts have identical copies of the 5 showcase documents in their individual drives. Login forms do not contain hardcoded or pre-filled credentials.
-
-### Automated Testing
-```bash
-# Standard Django test suite (19 tests)
-python manage.py test
-
-# Fast consolidated feature validation suite (~2.5s)
-python test_comprehensive_validation.py
-```
-
-### Optional: Deploying with PostgreSQL (Production Server Database)
-By default, the project runs on **SQLite** for zero-configuration simplicity. To deploy with a server database like **PostgreSQL** (e.g., Render, Railway, Supabase, AWS RDS):
-
-1. Install PostgreSQL driver:
-   ```bash
-   pip install psycopg2-binary
-   ```
-2. Update `DATABASES` in `gdrive_project/settings.py` (or use `DATABASE_URL` with `dj-database-url`):
-   ```python
-   DATABASES = {
-       'default': {
-           'ENGINE': 'django.db.backends.postgresql',
-           'NAME': 'gdrive_db',
-           'USER': 'postgres',
-           'PASSWORD': 'your_password',
-           'HOST': 'localhost',  # or cloud database host
-           'PORT': '5432',
-       }
-   }
-   ```
-3. Run migrations and seed data:
-   ```bash
-   python manage.py migrate
-   python seed_demo.py
-   ```
-
----
-
-## 6. Indexing and Web Application
+## 5. Indexing and Web Application
 
 ### Database Indexing & Query Optimizations
 - **Composite Index:** Added `models.Index(fields=['owner', 'is_folder'])` in `DriveItem` to accelerate quota queries and filter scans.
@@ -178,7 +185,7 @@ By default, the project runs on **SQLite** for zero-configuration simplicity. To
 
 ---
 
-## 7. Feature
+## 6. Feature
 
 ### Ultra-Lightweight Showcase Media (< 20 KB)
 To ensure fast GitHub deployment, quick clone speeds, and minimal repository weight, both `demo` and `admin` drives come pre-seeded with exactly **5 lightweight showcase files** totaling only **~16.5 KB**:
