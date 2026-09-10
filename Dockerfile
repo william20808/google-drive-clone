@@ -24,5 +24,5 @@ COPY . /app/
 # Expose default application port
 EXPOSE 8000
 
-# Run Django server bound to all network interfaces
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Run migrations and start Django server bound to all network interfaces
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"]
