@@ -223,11 +223,16 @@ Both `demo` and `admin` accounts come pre-seeded with 5 sample files (~16.5 KB t
      python seed_demo.py
      ```
 
-### Security & Hardening Checklist
+### Production Security & Deployment Checklist
 - **⚠️ Disable Debug Mode in Production (`DEBUG = False`):**
   - Always set `DJANGO_DEBUG=False` in environment variables (or `DEBUG = False` in `gdrive_project/settings.py`) before deploying publicly.
   - *Why:* Running with `DEBUG = True` leaks internal file paths, database queries, and environment settings in browser traceback screens if an error occurs.
 - **Allowed Hosts (`ALLOWED_HOSTS`):** Restrict `ALLOWED_HOSTS = ['yourdomain.com']` in production instead of using the development wildcard `['*']`.
+- **Static Assets Compilation:** When running with `DEBUG = False`, compile static assets into `staticfiles/`:
+  ```bash
+  python manage.py collectstatic --noinput
+  ```
+- **Persistent Media Uploads:** User files are saved to `media/uploads/user_<id>/`. When deploying in Docker or cloud containers, mount a persistent volume to `/app/media` (as configured in `docker-compose.yml`) to ensure files persist across restarts.
 - **Secret Key Protection:** Provide a strong, unique `DJANGO_SECRET_KEY` via environment variables.
 - **Form Hardening:** Forms use `autocomplete="off"` to prevent automatic browser credential pre-population, and all default pre-filled credentials have been eliminated.
 - **Workspace Data Isolation:** Strict user isolation ensures users can never access, modify, or download other users' files without an explicit share token.
