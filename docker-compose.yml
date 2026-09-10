@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    container_name: google_drive_clone
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+      - ./media:/app/media
+    environment:
+      - DJANGO_DEBUG=True
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped

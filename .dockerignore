@@ -1,0 +1,24 @@
+# Git and environments
+.git/
+.venv/
+venv/
+env/
+ENV/
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+
+# Logs and scratch files
+*.log
+scratch/
+db.sqlite3-journal
+
+# Operating system and IDE metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

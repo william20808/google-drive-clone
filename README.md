@@ -64,7 +64,29 @@ For testing and grading, the database comes pre-seeded with two standardized acc
 
 ---
 
-## 🚀 Quickstart & Local Setup
+## 🐳 Docker Setup (Recommended — One Command)
+
+If you have Docker installed, you can launch the complete application with a single command without needing to install Python or configure dependencies manually:
+
+```bash
+docker compose up --build
+```
+
+- **Open the App:** [http://localhost:8000/](http://localhost:8000/)
+- **Admin Console:** [http://localhost:8000/admin/](http://localhost:8000/admin/)
+- **Demo Credentials:** Username `demo` | Password `DemoPassword123!`
+- **Admin Credentials:** Username `admin` | Password `AdminPassword123!`
+
+The `docker-compose.yml` configuration mounts `db.sqlite3` and `media/` as persistent volumes on your host machine, ensuring any uploaded documents or account updates persist across container stops.
+
+To stop the container:
+```bash
+docker compose down
+```
+
+---
+
+## 🚀 Local Setup (Without Docker)
 
 ### Prerequisites
 - **Python 3.10+** (Python 3.11 or 3.12 recommended)
