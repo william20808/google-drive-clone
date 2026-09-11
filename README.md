@@ -207,31 +207,21 @@ Both `demo` and `admin` accounts come pre-seeded with 6 sample files (~17.2 KB t
 | `Confidential_Security_Note.txt` | Plain Text | ~570 B | Zero-Knowledge AES-at-rest encryption |
 
 ### Key Features
-- **🛡️ Zero-Knowledge At-Rest Media Encryption:** All uploaded user media (documents, images, videos, spreadsheets, code) is automatically encrypted with authenticated AES-128-CBC + HMAC-SHA256 (`Fernet`) before being written to disk or cloud storage. Encryption keys are generated and managed automatically with zero manual setup required. Hosting providers (AWS, Supabase, Render) and disk inspectors see only unreadable ciphertext starting with `ENC_FERNET_V1::`.
-- **⚡ On-The-Fly In-Memory Decryption:** When authorized users preview or download files, decryption executes strictly in RAM on demand, guaranteeing that unencrypted plaintext is never written to the host filesystem.
-- **📖 Multi-Format In-Browser Previews & Reading Modes:**
-  - **PDF Reader:** Dedicated reading mode with zoom-in, zoom-out, fit-to-page, and one-click print.
-  - **Photo Viewer:** High-resolution image viewer with 90° clockwise rotation and zoom controls.
-  - **Video Player:** Native HTML5 player with multi-speed playback (0.5x, 1x, 1.25x, 1.5x, 2x).
-  - **CSV Spreadsheet Table:** Formatted spreadsheet viewer rendering rows and columns in an interactive grid.
-  - **Text & Code Viewer:** Clean monospace display with a one-click "Copy to Clipboard" button.
-- **📁 Infinite Nested Folder Hierarchy:** Create, rename, move, and nest folders indefinitely with breadcrumb trail navigation and $O(1)$ in-memory graph traversal.
-- **📤 Drag-and-Drop Multi-File Uploads:** Drag files directly anywhere into the browser viewport with live upload progress indicators and automatic conflict resolution.
-- **🗂️ Multi-Select Batch Operations Toolbar:** Select single or multiple files and folders using checkboxes to perform batch actions in one click:
-  - Batch Star / Unstar
-  - Batch Move to designated folder
-  - Batch Trash / Restore
-  - Permanent deletion
-  - Instant batch export as a downloaded `.zip` archive
-- **🔗 Public Link Sharing & Anonymous Subtree Browsing:** Generate cryptographically secure UUID tokens to share files or whole folder hierarchies publicly, allowing anonymous visitors to view and download files within that subtree.
-- **💾 1-Click "Save to My Drive":** Authenticated users can clone any publicly shared file or folder hierarchy directly into their own drive with a single click.
-- **🔍 Live Real-Time Search & Category Filters:** Debounced instant search filtering across all files and folders, paired with one-click category chips (Documents, Images, Audio, Videos).
-- **📊 Tiered Storage Quota Management:** Real-time quota calculation with dynamic visual storage bars and configurable account tiers (15 GB free default, 100 GB, 500 GB).
-- **🌓 Zero-Lag Dark / Light Mode Switcher:** Transition-suppressed theme switcher with zero flicker and immediate browser `localStorage` persistence.
-- **🛠️ Integrated Django Admin Console (`/admin/`):** Full administrative dashboard for managing users, overriding quotas, inspecting items, and monitoring storage.
-- **🔒 Enterprise Security & Isolation:** Strict user workspace isolation preventing unauthorized access, CSRF validation on all mutable endpoints, and unpopulated login forms.
-- **🚀 Dual Database Architecture (SQLite & PostgreSQL):** Plug-and-play development with SQLite or one-variable switch to PostgreSQL for enterprise production.
-- **🧪 Automated Testing Suite:** 19 comprehensive unit tests, a rapid 2.5-second validation suite, and live HTTP integration tests for maximum reliability.
+- **Zero-Knowledge Media Encryption:** Automatic AES-128-CBC + HMAC-SHA256 encryption at rest; files stored as unreadable ciphertext with zero manual configuration.
+- **In-Memory Streaming & Decryption:** Seamless on-the-fly decryption in RAM for authorized file previews and downloads.
+- **Multi-Format In-Browser Previews:** Instant viewing for PDF (zoom/print), images (rotate/zoom), MP4 video, CSV spreadsheets, and text files.
+- **Drag-and-Drop Uploads:** Seamless multi-file upload zone with live progress indicators.
+- **Infinite Folder Hierarchy:** Recursive nested folders with dynamic breadcrumb path navigation.
+- **Multi-Select Batch Actions:** Batch Star, Move, Trash, Restore, Permanent Delete, and ZIP archive download.
+- **Public Link Sharing:** UUID-based public links for files and folder subtrees with anonymous browsing.
+- **Save to My Drive:** Authenticated users can clone publicly shared files directly into their own drive with a single click.
+- **Live Search & Category Filters:** Real-time autocomplete suggestions and quick filters (Documents, Images, Audio, Videos).
+- **Tiered Storage Management:** Configurable 15GB, 100GB, and 500GB storage plans with visual progress bars.
+- **Django Admin Console:** Complete administrative interface at `/admin/` for user management and quota adjustments.
+- **Zero-Lag Dark / Light Mode:** Instant theme switcher with browser local persistence.
+- **Enterprise-Grade Security:** Strict workspace isolation, CSRF protection, and unpopulated login forms.
+- **Dual Database Support:** Instant SQLite for development with PostgreSQL ready for production.
+- **Automated Test Suite:** 19 unit tests, rapid 2.5s feature validation suite, and live HTTP integration tests.
 
 ---
 
