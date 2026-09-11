@@ -38,12 +38,12 @@ class UserLoginForm(AuthenticationForm):
         super().__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({
             'class': 'input input-bordered w-full',
-            'placeholder': 'Username',
-            'autocomplete': 'off',
+            'placeholder': 'Enter your username',
+            'autocomplete': 'username',
         })
         self.fields['password'].widget.attrs.update({
             'class': 'input input-bordered w-full',
-            'placeholder': 'Password',
+            'placeholder': 'Enter your password',
             'autocomplete': 'new-password',
         })
 
