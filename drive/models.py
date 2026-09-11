@@ -9,6 +9,8 @@ from drive.utils import (
     get_file_category,
     detect_mime_type,
 )
+from drive.crypto import encrypted_storage
+
 
 class DriveItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -26,7 +28,7 @@ class DriveItem(models.Model):
         on_delete=models.CASCADE,
         related_name='children'
     )
-    file = models.FileField(upload_to=user_directory_path, null=True, blank=True)
+    file = models.FileField(storage=encrypted_storage, upload_to=user_directory_path, null=True, blank=True)
     file_size = models.BigIntegerField(default=0)  # In bytes
     mime_type = models.CharField(max_length=120, default='application/octet-stream')
     file_extension = models.CharField(max_length=30, blank=True)
@@ -53,12 +55,25 @@ class DriveItem(models.Model):
 
     @property
     def file_url(self):
-        if self.file and bool(self.file.name):
-            try:
-                return self.file.url
-            except ValueError:
-                return ''
-        return ''
+        if self.is_folder or not self.file:
+            return ''
+        return f"/drive/view/{self.id}/"
+
+    def read_bytes(self):
+        """Return decrypted raw file bytes."""
+        from drive.crypto import read_decrypted_bytes
+        return read_decrypted_bytes(self)
+
+    def open_decrypted(self):
+        """Return a seekable BytesIO stream containing decrypted file bytes."""
+        from drive.crypto import get_decrypted_file_stream
+        return get_decrypted_file_stream(self)
+
+    def read_text(self, max_chars=300000):
+        """Return decrypted file content as UTF-8 string."""
+        from drive.crypto import read_decrypted_text
+        return read_decrypted_text(self, max_chars=max_chars)
+
 
     @property
     def formatted_size(self):
@@ -127,17 +142,7 @@ class DriveItem(models.Model):
             self._cached_text_preview_snippet = ''
             return ''
         try:
-            if hasattr(self.file, 'path') and os.path.exists(self.file.path):
-                with open(self.file.path, 'r', encoding='utf-8', errors='ignore') as f:
-                    self._cached_text_preview_snippet = f.read(1200)
-            else:
-                self.file.open('r')
-                content = self.file.read(1200)
-                self.file.close()
-                if isinstance(content, bytes):
-                    self._cached_text_preview_snippet = content.decode('utf-8', errors='ignore')
-                else:
-                    self._cached_text_preview_snippet = str(content)
+            self._cached_text_preview_snippet = self.read_text(max_chars=1200)
         except Exception:
             self._cached_text_preview_snippet = ''
         return self._cached_text_preview_snippet

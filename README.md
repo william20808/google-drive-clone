@@ -24,6 +24,7 @@ This project is built upon the conceptual layout and visual design of **[google-
 | :--- | :--- | :--- |
 | **Backend & Stack** | Node.js / Next.js, NextAuth, Prisma ORM, PostgreSQL | Pure Python 3 & Django 5 monolith, SQLite (or PostgreSQL), Django Auth |
 | **Media Delivery** | Relied on third-party Cloudinary API | Self-contained, single-port zero-build local/server storage |
+| **Confidentiality & Privacy** | Plaintext unencrypted storage | **Zero-Knowledge At-Rest Media Encryption** (AES-128-CBC + HMAC-SHA256) — host servers & cloud providers cannot read or inspect user uploads |
 | **Document Previews** | Basic link views | Dedicated PDF Reading Mode (zoom & print), Image Viewer (90° rotation & zoom), HTML5 Video Player (0.5x–2x speed), and interactive CSV Table Grid |
 | **Batch Operations** | Single item interactions | Multi-select toolbar for batch star, move, trash, restore, delete, and ZIP archive download |
 | **Storage & Admin** | Fixed 200MB limit | Configurable 15GB / 100GB / 500GB tiers with integrated Django Admin Console (`/admin/`) |
@@ -43,6 +44,13 @@ git clone https://github.com/william20808/google-drive-clone.git
 cd google-drive-clone
 ```
 
+### ⚡ 1-Click Configuration (.env)
+Copy the template configuration file before launching:
+```bash
+cp .env.example .env
+```
+*(All variables have secure, working defaults out-of-the-box. If using PostgreSQL, AWS S3, or a custom encryption key, simply fill in your values in `.env`).*
+
 Choose **Option A** (Docker — fastest) or **Option B** (Local Python):
 
 ### 🐳 Option A: Docker (One Command — No Python Setup Needed)
@@ -51,6 +59,7 @@ If you have Docker installed, you do not need to install Python, create a virtua
 ```bash
 docker compose up --build
 ```
+
 - **App URL:** [http://localhost:8000/](http://localhost:8000/)
 - **Admin Console:** [http://localhost:8000/admin/](http://localhost:8000/admin/)
 - Database (`db.sqlite3`) and uploads (`media/`) automatically persist on your host machine.
@@ -201,40 +210,53 @@ Both `demo` and `admin` accounts come pre-seeded with 5 sample files (~16.5 KB t
 
 ### Database Configuration (SQLite vs. PostgreSQL)
 - **Default Database (SQLite):** Pre-configured out of the box for zero-setup local development and rapid testing (`db.sqlite3`).
-- **Production Server Database (PostgreSQL):** To deploy on cloud platforms (e.g., Render, Railway, AWS RDS, Supabase):
+- **Production Server Database (PostgreSQL):** To deploy on cloud platforms (e.g., Render, Railway, AWS RDS, Supabase, Neon):
   1. Install PostgreSQL driver:
      ```bash
      pip install psycopg2-binary
+     # Or install all production packages:
+     pip install -r requirements-prod.txt
      ```
-  2. Configure `DATABASES` in `gdrive_project/settings.py` (or set `DATABASE_URL`):
-     ```python
-     DATABASES = {
-         'default': {
-             'ENGINE': 'django.db.backends.postgresql',
-             'NAME': 'gdrive_db',
-             'USER': 'postgres',
-             'PASSWORD': 'your_password',
-             'HOST': 'localhost',  # or cloud database host
-             'PORT': '5432',
-         }
-     }
+  2. Set `DATABASE_URL` in your `.env` (or environment variables):
+     ```bash
+     DATABASE_URL=postgres://postgres:password@localhost:5432/gdrive_db
      ```
+     *(Or configure individual parameters: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_PORT`).*
   3. Run migrations and seed data:
      ```bash
      python manage.py migrate
      python seed_demo.py
      ```
+  4. *(Optional)* **Docker Compose with PostgreSQL:**
+     ```bash
+     docker compose -f docker-compose.prod.yml up -d
+     ```
+
+### 🛡️ Zero-Knowledge Media Encryption (Confidentiality & Privacy)
+- **At-Rest AES Encryption:** All user files uploaded to the server (or S3 bucket) are encrypted prior to being written to storage using AES-128 in CBC mode with HMAC-SHA256 authentication (`cryptography.fernet`).
+- **Zero Company / Host Visibility:** Server administrators, cloud providers (AWS, Supabase, Render), and host machines cannot view, read, or inspect user files — files on disk are unreadable ciphertext starting with `ENC_FERNET_V1::`.
+- **On-The-Fly In-Memory Decryption:** Decryption happens strictly in RAM during authorized streaming (`/drive/view/<id>/`) or downloads (`/drive/download/<id>/`).
+- **Key Configuration:** A 256-bit encryption key is automatically derived from `DJANGO_SECRET_KEY`, or you can supply a custom `MEDIA_ENCRYPTION_KEY` in `.env`:
+  ```bash
+  # Generate a key:
+  python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+  ```
 
 ### Production Security & Deployment Checklist
+
 - **⚠️ Disable Debug Mode in Production (`DEBUG = False`):**
-  - Always set `DJANGO_DEBUG=False` in environment variables (or `DEBUG = False` in `gdrive_project/settings.py`) before deploying publicly.
+  - Always set `DJANGO_DEBUG=False` in environment variables before deploying publicly.
   - *Why:* Running with `DEBUG = True` leaks internal file paths, database queries, and environment settings in browser traceback screens if an error occurs.
 - **Allowed Hosts (`ALLOWED_HOSTS`):** Restrict `ALLOWED_HOSTS = ['yourdomain.com']` in production instead of using the development wildcard `['*']`.
 - **Static Assets Compilation:** When running with `DEBUG = False`, compile static assets into `staticfiles/`:
   ```bash
   python manage.py collectstatic --noinput
   ```
-- **Persistent Media Uploads:** User files are saved to `media/uploads/user_<id>/`. When deploying in Docker or cloud containers, mount a persistent volume to `/app/media` (as configured in `docker-compose.yml`) to ensure files persist across restarts.
+- **Database Migrations:** Apply all schema migrations to your database:
+  ```bash
+  python manage.py migrate --noinput
+  ```
 - **Secret Key Protection:** Provide a strong, unique `DJANGO_SECRET_KEY` via environment variables.
-- **Form Hardening:** Forms use `autocomplete="off"` to prevent automatic browser credential pre-population, and all default pre-filled credentials have been eliminated.
+- **Form Hardening:** Forms use `autocomplete="off"` to prevent automatic browser credential pre-population.
 - **Workspace Data Isolation:** Strict user isolation ensures users can never access, modify, or download other users' files without an explicit share token.
+

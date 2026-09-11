@@ -1,0 +1,8 @@
+# Production dependencies (PostgreSQL + Cloud Object Storage)
+-r requirements.txt
+
+# PostgreSQL Database Driver
+psycopg2-binary>=2.9.9
+
+# Cloud Object Storage Backend (AWS S3, Cloudflare R2, Supabase Storage, MinIO)
+django-storages[boto3]>=1.14.2

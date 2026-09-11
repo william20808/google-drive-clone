@@ -16,6 +16,13 @@ from django.db.models import Q, Sum
 
 from django.contrib import messages
 from drive.models import DriveItem
+from drive.crypto import (
+    encrypt_bytes,
+    decrypt_bytes,
+    read_decrypted_bytes,
+    read_decrypted_text,
+    get_decrypted_file_stream,
+)
 from drive.forms import UserRegisterForm, UserLoginForm, ForgotPasswordForm
 from drive.utils import (
     format_bytes,
@@ -288,10 +295,9 @@ def share_view(request, share_token):
         })
     else:
         text_content = ''
-        if item.preview_type == 'text' and item.file and os.path.exists(item.file.path):
+        if item.preview_type == 'text':
             try:
-                with open(item.file.path, 'r', encoding='utf-8', errors='replace') as f:
-                    text_content = f.read(300000)
+                text_content = item.read_text(300000)
             except Exception:
                 text_content = ''
 
@@ -329,9 +335,10 @@ def share_folder_download_zip(request, share_token):
     with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
         def add_folder_to_zip(folder, base_path=""):
             for f in folder.children.filter(is_folder=False, is_trashed=False):
-                if f.file and os.path.exists(f.file.path):
+                data = f.read_bytes()
+                if data:
                     arcname = os.path.join(base_path, f.name)
-                    zip_file.write(f.file.path, arcname)
+                    zip_file.writestr(arcname, data)
             for sub in folder.children.filter(is_folder=True, is_trashed=False):
                 sub_path = os.path.join(base_path, sub.name)
                 add_folder_to_zip(sub, sub_path)
@@ -343,13 +350,15 @@ def share_folder_download_zip(request, share_token):
     return FileResponse(buffer, as_attachment=True, filename=zip_name, content_type='application/zip')
 
 
+
 # ==============================================================================
 # File Download View
 # ==============================================================================
 
 def download_file(request, file_id):
     """
-    Download a file. Accessible by owner or if shared publicly directly/via parent folder.
+    Download a file with on-the-fly zero-knowledge decryption.
+    Accessible by owner or if shared publicly directly/via parent folder.
     """
     item = get_object_or_404(DriveItem, id=file_id, is_folder=False)
 
@@ -359,11 +368,39 @@ def download_file(request, file_id):
     if not is_owner and not is_public:
         raise Http404("File not found or permission denied.")
 
-    if not item.file or not os.path.exists(item.file.path):
-        raise Http404("Physical file missing on server.")
+    data = item.read_bytes()
+    if not data and item.file_size > 0:
+        raise Http404("Physical file missing or empty on server.")
 
-    response = FileResponse(open(item.file.path, 'rb'), as_attachment=True, filename=item.name)
+    response = FileResponse(io.BytesIO(data), as_attachment=True, filename=item.name)
+    response['Content-Length'] = len(data)
+    response['Content-Type'] = item.mime_type or 'application/octet-stream'
     return response
+
+
+def view_file(request, file_id):
+    """
+    Stream decrypted file content for in-browser preview (images, video, audio, PDFs, text).
+    Accessible by owner or if publicly shared directly or via parent folder.
+    """
+    item = get_object_or_404(DriveItem, id=file_id, is_folder=False)
+
+    is_owner = request.user.is_authenticated and item.owner == request.user
+    is_public = is_item_publicly_accessible(item)
+
+    if not is_owner and not is_public:
+        raise Http404("File not found or permission denied.")
+
+    data = item.read_bytes()
+    if not data and item.file_size > 0:
+        raise Http404("Physical file missing or empty on server.")
+
+    response = FileResponse(io.BytesIO(data), as_attachment=False, filename=item.name)
+    response['Content-Type'] = item.mime_type or 'application/octet-stream'
+    response['Content-Disposition'] = f'inline; filename="{item.name}"'
+    response['Content-Length'] = len(data)
+    return response
+
 
 
 # ==============================================================================
@@ -483,12 +520,17 @@ def api_upload_file(request):
                     counter += 1
         existing_names.add(final_name)
 
+        # Zero-Knowledge At-Rest Encryption: Encrypt file content before saving to disk
+        file_bytes = uploaded_file.read()
+        encrypted_bytes = encrypt_bytes(file_bytes)
+        encrypted_content = ContentFile(encrypted_bytes, name=final_name)
+
         item = DriveItem.objects.create(
             owner=request.user,
             name=final_name,
             is_folder=False,
             parent=parent,
-            file=uploaded_file,
+            file=encrypted_content,
             file_size=uploaded_file.size,
             mime_type=mime,
             file_extension=ext,
@@ -652,9 +694,10 @@ def api_copy_item(request, item_id):
                 file_extension=source_item.file_extension,
                 is_starred=source_item.is_starred,
             )
-            if source_item.file and os.path.exists(source_item.file.path):
-                with open(source_item.file.path, 'rb') as f:
-                    new_file_entry.file.save(copy_name, ContentFile(f.read()), save=False)
+            if source_item.file:
+                source_bytes = source_item.read_bytes()
+                if source_bytes:
+                    new_file_entry.file.save(copy_name, ContentFile(encrypt_bytes(source_bytes)), save=False)
             new_file_entry.save()
             return new_file_entry
 
@@ -932,41 +975,41 @@ def api_save_shared_copy(request, item_id):
         )
         copied_count = 0
         for child in item.children.filter(is_folder=False, is_trashed=False):
-            if child.file and os.path.exists(child.file.path):
-                with open(child.file.path, 'rb') as f:
-                    content = ContentFile(f.read())
-                    new_file = DriveItem(
-                        owner=request.user,
-                        parent=new_folder,
-                        name=child.name,
-                        is_folder=False,
-                        file_size=child.file_size,
-                        mime_type=child.mime_type,
-                        file_extension=child.file_extension
-                    )
-                    new_file.file.save(child.name, content, save=True)
-                    copied_count += 1
+            child_bytes = child.read_bytes()
+            if child_bytes:
+                content = ContentFile(encrypt_bytes(child_bytes), name=child.name)
+                new_file = DriveItem(
+                    owner=request.user,
+                    parent=new_folder,
+                    name=child.name,
+                    is_folder=False,
+                    file_size=child.file_size,
+                    mime_type=child.mime_type,
+                    file_extension=child.file_extension
+                )
+                new_file.file.save(child.name, content, save=True)
+                copied_count += 1
         return JsonResponse({
             'success': True,
             'message': f'Folder "{item.name}" copied to your My Drive with {copied_count} files.',
             'redirect_url': f"/drive/folder/{new_folder.id}/",
         })
     else:
-        if not item.file or not os.path.exists(item.file.path):
-            return JsonResponse({'error': 'Physical file missing on server.'}, status=404)
+        source_bytes = item.read_bytes()
+        if not source_bytes and item.file_size > 0:
+            return JsonResponse({'error': 'Physical file missing or empty on server.'}, status=404)
 
-        with open(item.file.path, 'rb') as f:
-            content = ContentFile(f.read())
-            new_file = DriveItem(
-                owner=request.user,
-                name=f"Copy of {item.name}" if item.owner == request.user else item.name,
-                is_folder=False,
-                file_size=item.file_size,
-                mime_type=item.mime_type,
-                file_extension=item.file_extension,
-                parent=None
-            )
-            new_file.file.save(item.name, content, save=True)
+        content = ContentFile(encrypt_bytes(source_bytes), name=item.name)
+        new_file = DriveItem(
+            owner=request.user,
+            name=f"Copy of {item.name}" if item.owner == request.user else item.name,
+            is_folder=False,
+            file_size=item.file_size,
+            mime_type=item.mime_type,
+            file_extension=item.file_extension,
+            parent=None
+        )
+        new_file.file.save(item.name, content, save=True)
 
         return JsonResponse({
             'success': True,
@@ -1226,9 +1269,11 @@ def api_batch_download_zip(request):
                 for child in item.children.filter(is_trashed=False):
                     add_item_to_zip(child, folder_path)
             else:
-                if item.file and os.path.exists(item.file.path):
-                    arcname = os.path.join(base_path, item.name) if base_path else item.name
-                    zip_file.write(item.file.path, arcname)
+                if item.file:
+                    data = item.read_bytes()
+                    if data:
+                        arcname = os.path.join(base_path, item.name) if base_path else item.name
+                        zip_file.writestr(arcname, data)
 
         for it in items:
             add_item_to_zip(it, "")

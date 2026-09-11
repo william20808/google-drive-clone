@@ -17,6 +17,8 @@ urlpatterns = [
     path('share/<str:share_token>/', views.share_view, name='share_view'),
     path('share/<str:share_token>/download-zip/', views.share_folder_download_zip, name='share_folder_download_zip'),
     path('drive/download/<uuid:file_id>/', views.download_file, name='download_file'),
+    path('drive/view/<uuid:file_id>/', views.view_file, name='view_file'),
+
 
     # API Endpoints
     path('api/folders/create/', views.api_create_folder, name='api_create_folder'),

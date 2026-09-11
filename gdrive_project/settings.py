@@ -29,7 +29,12 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ['*']
+raw_hosts = os.environ.get('ALLOWED_HOSTS', '*')
+ALLOWED_HOSTS = [h.strip() for h in raw_hosts.split(',') if h.strip()] if raw_hosts != '*' else ['*']
+
+# Zero-Knowledge Media At-Rest Encryption Key
+MEDIA_ENCRYPTION_KEY = os.environ.get('MEDIA_ENCRYPTION_KEY', '').strip() or None
+
 
 
 # Application definition
@@ -77,13 +82,55 @@ WSGI_APPLICATION = 'gdrive_project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# Default: Zero-setup SQLite for rapid local testing (db.sqlite3).
+# Production: Automatically switches to PostgreSQL when DATABASE_URL or POSTGRES_DB is provided.
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = os.environ.get('DATABASE_URL')
+POSTGRES_DB = os.environ.get('POSTGRES_DB')
+
+if DATABASE_URL:
+    from urllib.parse import urlparse, unquote
+    parsed_db = urlparse(DATABASE_URL)
+    is_sqlite = parsed_db.scheme == 'sqlite'
+
+    if is_sqlite:
+        db_path = parsed_db.path.lstrip('/')
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / db_path if db_path else BASE_DIR / 'db.sqlite3',
+            }
+        }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': unquote(parsed_db.path.lstrip('/')),
+                'USER': unquote(parsed_db.username or ''),
+                'PASSWORD': unquote(parsed_db.password or ''),
+                'HOST': parsed_db.hostname or 'localhost',
+                'PORT': str(parsed_db.port or 5432),
+            }
+        }
+elif POSTGRES_DB:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': POSTGRES_DB,
+            'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
+            'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+            'PORT': str(os.environ.get('POSTGRES_PORT', '5432')),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+
 
 
 # Password validation
@@ -125,8 +172,40 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files (User uploads)
+# ==============================================================================
+# Architecture Note: In production web applications (both SQLite & PostgreSQL),
+# binary file uploads are intentionally kept separate from relational databases
+# to avoid database buffer bloat, preserve connection pool capacity, and enable
+# fast CDN/direct file streaming.
+#
+# Strategy 1 (Default): Local disk or mounted persistent volume (/app/media)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Strategy 2 (Cloud Production): AWS S3 / Cloudflare R2 / MinIO Object Storage
+# Activated when USE_S3=True or AWS_STORAGE_BUCKET_NAME is configured in environment.
+USE_S3 = os.environ.get('USE_S3', 'False').lower() in ('true', '1', 'yes')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+
+if USE_S3 or AWS_STORAGE_BUCKET_NAME:
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "access_key": os.environ.get('AWS_ACCESS_KEY_ID'),
+                "secret_key": os.environ.get('AWS_SECRET_ACCESS_KEY'),
+                "bucket_name": AWS_STORAGE_BUCKET_NAME,
+                "region_name": os.environ.get('AWS_S3_REGION_NAME', 'us-east-1'),
+                "endpoint_url": os.environ.get('AWS_S3_ENDPOINT_URL'),
+                "default_acl": None,
+                "file_overwrite": False,
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+
 
 # Authentication
 LOGIN_URL = 'login'

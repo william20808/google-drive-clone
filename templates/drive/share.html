@@ -272,7 +272,7 @@
 
                                 <!-- Files -->
                                 {% for file in children_files %}
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition cursor-pointer" onclick='openShareFilePreview("{{ file.id }}", "{{ file.name|escapejs }}", "{{ file.preview_type }}", "{{ file.file.url }}", "{{ file.formatted_size }}", "{{ file.updated_at|date:"Y/m/d" }}", "{{ file.mime_type }}")'>
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition cursor-pointer" onclick='openShareFilePreview("{{ file.id }}", "{{ file.name|escapejs }}", "{{ file.preview_type }}", "{{ file.file_url }}", "{{ file.formatted_size }}", "{{ file.updated_at|date:"Y/m/d" }}", "{{ file.mime_type }}")'>
                                         <td class="py-3 px-4 flex items-center space-x-3">
                                             {% if file.preview_type == 'image' %}
                                                 <svg class="w-5 h-5 text-rose-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -298,7 +298,7 @@
                                         <td class="py-3 px-4 text-right space-x-2" onclick="event.stopPropagation()">
                                             <button 
                                                 type="button" 
-                                                onclick='openShareFilePreview("{{ file.id }}", "{{ file.name|escapejs }}", "{{ file.preview_type }}", "{{ file.file.url }}", "{{ file.formatted_size }}", "{{ file.updated_at|date:"Y/m/d" }}", "{{ file.mime_type }}")' 
+                                                onclick='openShareFilePreview("{{ file.id }}", "{{ file.name|escapejs }}", "{{ file.preview_type }}", "{{ file.file_url }}", "{{ file.formatted_size }}", "{{ file.updated_at|date:"Y/m/d" }}", "{{ file.mime_type }}")' 
                                                 class="btn btn-xs btn-ghost text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full normal-case"
                                             >
                                                 Preview
@@ -352,7 +352,7 @@
                                 <button type="button" onclick="togglePdfFitWidth()" id="pdf-fit-btn" class="reading-toolbar-btn text-gray-300 hover:text-white" title="Fit Width">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
                                 </button>
-                                <a href="{{ item.file.url }}" target="_blank" class="reading-toolbar-btn text-gray-300 hover:text-white" title="Open in new window">
+                                <a href="{{ item.file_url }}" target="_blank" class="reading-toolbar-btn text-gray-300 hover:text-white" title="Open in new window">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                 </a>
                                 <button type="button" onclick="printDocument('pdf-reading-iframe')" class="reading-toolbar-btn text-gray-300 hover:text-white hidden sm:inline-flex" title="Print document">
@@ -364,7 +364,7 @@
                         <!-- PDF Viewer Body -->
                         <div id="pdf-container-box" class="flex-1 bg-gray-900/90 flex items-center justify-center p-2 sm:p-4 overflow-auto min-h-[75vh]">
                             <div id="pdf-wrapper" class="w-full h-[75vh] transition-transform duration-200 origin-top shadow-2xl rounded-xl overflow-hidden bg-white">
-                                <iframe id="pdf-reading-iframe" src="{{ item.file.url }}" class="w-full h-full border-0"></iframe>
+                                <iframe id="pdf-reading-iframe" src="{{ item.file_url }}" class="w-full h-full border-0"></iframe>
                             </div>
                         </div>
                     </div>
@@ -397,7 +397,7 @@
                                 <button type="button" onclick="resetImageTransform()" class="reading-toolbar-btn text-gray-300 hover:text-white text-xs" title="Reset Image">
                                     Reset
                                 </button>
-                                <a href="{{ item.file.url }}" target="_blank" class="reading-toolbar-btn text-gray-300 hover:text-white" title="Open full resolution">
+                                <a href="{{ item.file_url }}" target="_blank" class="reading-toolbar-btn text-gray-300 hover:text-white" title="Open full resolution">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                 </a>
                             </div>
@@ -406,7 +406,7 @@
                         <!-- Photo Viewer Area -->
                         <div class="flex-1 bg-gray-950 flex items-center justify-center p-4 overflow-hidden min-h-[72vh]">
                             <div class="overflow-auto max-w-full max-h-full flex items-center justify-center p-2">
-                                <img id="share-preview-img" src="{{ item.file.url }}" alt="{{ item.name }}" class="max-w-full max-h-[72vh] object-contain rounded-xl shadow-2xl transition-transform duration-200 cursor-grab active:cursor-grabbing">
+                                <img id="share-preview-img" src="{{ item.file_url }}" alt="{{ item.name }}" class="max-w-full max-h-[72vh] object-contain rounded-xl shadow-2xl transition-transform duration-200 cursor-grab active:cursor-grabbing">
                             </div>
                         </div>
                     </div>
@@ -439,7 +439,7 @@
                         <!-- Video Player Area -->
                         <div class="flex-1 bg-black flex items-center justify-center p-2 sm:p-6">
                             <video id="share-video-player" controls autoplay class="max-w-full max-h-[70vh] rounded-xl shadow-2xl">
-                                <source src="{{ item.file.url }}" type="{{ item.mime_type }}">
+                                <source src="{{ item.file_url }}" type="{{ item.mime_type }}">
                                 Your browser does not support video playback.
                             </video>
                         </div>
@@ -457,7 +457,7 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ item.formatted_size }} • Audio file</p>
                         </div>
                         <audio id="share-audio-player" controls class="w-full">
-                            <source src="{{ item.file.url }}" type="{{ item.mime_type }}">
+                            <source src="{{ item.file_url }}" type="{{ item.mime_type }}">
                             Your browser does not support audio playback.
                         </audio>
                         <div class="flex items-center space-x-2 text-xs pt-1">
