@@ -22,14 +22,14 @@ This project is built upon the conceptual layout and visual design of **[google-
 
 | Aspect | Original Implementation | This Rebuild Project |
 | :--- | :--- | :--- |
-| **Backend & Stack** | Node.js / Next.js, NextAuth, Prisma ORM, PostgreSQL | Pure Python 3 & Django 5 monolith, SQLite (or PostgreSQL), Django Auth |
-| **Media Delivery** | Relied on third-party Cloudinary API | Self-contained, single-port zero-build local/server storage |
-| **Confidentiality & Privacy** | Plaintext unencrypted storage | **Zero-Knowledge At-Rest Media Encryption** (AES-128-CBC + HMAC-SHA256) — host servers & cloud providers cannot read or inspect user uploads |
-| **Document Previews** | Basic link views | Dedicated PDF Reading Mode (zoom & print), Image Viewer (90° rotation & zoom), HTML5 Video Player (0.5x–2x speed), and interactive CSV Table Grid |
-| **Batch Operations** | Single item interactions | Multi-select toolbar for batch star, move, trash, restore, delete, and ZIP archive download |
-| **Storage & Admin** | Fixed 200MB limit | Configurable 15GB / 100GB / 500GB tiers with integrated Django Admin Console (`/admin/`) |
-| **Theme System** | Standard CSS | Zero-lag transition-suppressed Dark/Light Mode with instant client persistence |
-| **Performance** | Multi-hop network calls | $O(1)$ in-memory graph traversal for nested folder descendants, database composite indexes, and process-level email caching |
+| **Backend & Stack** | Node.js / Next.js, Prisma, PostgreSQL | Python 3 / Django 5 monolith, SQLite or PostgreSQL |
+| **Media Delivery** | Third-party Cloudinary API | Self-contained local or server storage |
+| **Confidentiality & Privacy** | Plaintext unencrypted storage | AES-128-CBC + HMAC-SHA256 at-rest encryption |
+| **Document Previews** | Basic link views | In-browser PDF, Image, Video, CSV & Text viewers |
+| **Batch Operations** | Single item interactions | Multi-select toolbar (star, move, trash, ZIP export) |
+| **Storage & Admin** | Fixed 200MB limit | Configurable 15GB / 100GB / 500GB plans + Admin console |
+| **Theme System** | Standard CSS | Dark / Light mode toggle with client persistence |
+| **Performance** | Multi-hop network calls | Fast in-memory tree traversal & database indexing |
 
 - **Contributing:** Pull requests and feedback are welcome! Please ensure all tests pass before submitting PRs.
 - **License:** Distributed under the **MIT License**.
