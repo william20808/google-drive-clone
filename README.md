@@ -44,14 +44,7 @@ git clone https://github.com/william20808/google-drive-clone.git
 cd google-drive-clone
 ```
 
-### ⚡ 1-Click Configuration (.env)
-Copy the template configuration file before launching:
-```bash
-cp .env.example .env
-```
-*(All variables have secure, working defaults out-of-the-box. If using PostgreSQL, AWS S3, or a custom encryption key, simply fill in your values in `.env`).*
-
-Choose **Option A** (Docker — fastest) or **Option B** (Local Python):
+Choose **Option A** (Docker — fastest, zero setup) or **Option B** (Local Python):
 
 ### 🐳 Option A: Docker (One Command — No Python Setup Needed)
 If you have Docker installed, you do not need to install Python, create a virtual environment, or run migrations manually:
@@ -219,7 +212,7 @@ Both `demo` and `admin` accounts come pre-seeded with 6 sample files (~17.2 KB t
 - **Tiered Storage Management:** Configurable 15GB, 100GB, and 500GB storage plans with visual progress bars.
 - **Django Admin Console:** Complete administrative interface at `/admin/` for user management and quota adjustments.
 - **Zero-Lag Dark / Light Mode:** Instant theme switcher with browser local persistence.
-- **Enterprise-Grade Security:** Strict workspace isolation, CSRF protection, and unpopulated login forms.
+- **Enterprise-Grade Security:** Strict workspace isolation, CSRF protection, and secure credential handling.
 - **Dual Database Support:** Instant SQLite for development with PostgreSQL ready for production.
 - **Automated Test Suite:** 19 unit tests, rapid 2.5s feature validation suite, and live HTTP integration tests.
 
@@ -228,25 +221,30 @@ Both `demo` and `admin` accounts come pre-seeded with 6 sample files (~17.2 KB t
 ## 7. Database & Security
 
 ### Database Configuration (SQLite vs. PostgreSQL)
-- **Default Database (SQLite):** Pre-configured out of the box for zero-setup local development and rapid testing (`db.sqlite3`).
-- **Production Server Database (PostgreSQL):** To deploy on cloud platforms (e.g., Render, Railway, AWS RDS, Supabase, Neon):
-  1. Install PostgreSQL driver:
+- **Default Database (SQLite):** Pre-configured out of the box for zero-setup local development and rapid testing (`db.sqlite3`). No `.env` or extra configuration is needed.
+- **Production Server Database (PostgreSQL):** To connect to a PostgreSQL database on cloud platforms (e.g., Render, Railway, AWS RDS, Supabase, Neon):
+  1. Create your `.env` configuration file:
+     ```bash
+     cp .env.example .env
+     # On Windows (PowerShell/CMD): copy .env.example .env
+     ```
+  2. Install PostgreSQL driver:
      ```bash
      pip install psycopg2-binary
      # Or install all production packages:
      pip install -r requirements-prod.txt
      ```
-  2. Set `DATABASE_URL` in your `.env` (or environment variables):
+  3. Set `DATABASE_URL` in your `.env`:
      ```bash
      DATABASE_URL=postgres://postgres:password@localhost:5432/gdrive_db
      ```
      *(Or configure individual parameters: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_PORT`).*
-  3. Run migrations and seed data:
+  4. Run migrations and seed data:
      ```bash
      python manage.py migrate
      python seed_demo.py
      ```
-  4. *(Optional)* **Docker Compose with PostgreSQL:**
+  5. *(Optional)* **Docker Compose with PostgreSQL:**
      ```bash
      docker compose -f docker-compose.prod.yml up -d
      ```
@@ -266,6 +264,6 @@ Both `demo` and `admin` accounts come pre-seeded with 6 sample files (~17.2 KB t
   python manage.py migrate --noinput
   ```
 - **Secret Key Protection:** Provide a strong, unique `DJANGO_SECRET_KEY` via environment variables.
-- **Form Hardening:** Forms use `autocomplete="off"` to prevent automatic browser credential pre-population.
+- **Authentication Security:** Password fields require manual user entry (`autocomplete="new-password"`) to ensure security, while username fields support browser history for convenience.
 - **Workspace Data Isolation:** Strict user isolation ensures users can never access, modify, or download other users' files without an explicit share token.
 
