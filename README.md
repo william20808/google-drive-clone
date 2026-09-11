@@ -153,6 +153,7 @@ google-drive-clone/
 ├── drive/                  # Core Django application
 │   ├── models.py           # DriveItem & UserProfile models (with indexing)
 │   ├── views.py            # File views, API endpoints, batch handlers
+│   ├── crypto.py           # Zero-knowledge AES-128-CBC + HMAC-SHA256 storage engine
 │   ├── utils.py            # Storage calculation & email cache
 │   ├── forms.py            # Authentication & profile forms
 │   └── tests.py            # Test discovery delegate (imports from tests/)
@@ -164,11 +165,14 @@ google-drive-clone/
 │   ├── test_unit.py        # 19 core Django unit & isolation test cases
 │   ├── test_comprehensive_validation.py # Fast consolidated feature validation
 │   └── test_live_server.py # Live HTTP server & AJAX integration tests
+├── .env.example            # Environment configuration template
 ├── Dockerfile              # Docker container definition (Python 3.11-slim)
-├── docker-compose.yml      # Docker Compose setup with persistent volumes
+├── docker-compose.yml      # Development Docker Compose (SQLite)
+├── docker-compose.prod.yml # Production Docker Compose (PostgreSQL)
 ├── manage.py               # Django management script
 ├── seed_demo.py            # Database reset & seed script
 ├── requirements.txt        # Python package dependencies
+├── requirements-prod.txt   # Production dependencies (psycopg2, boto3)
 ├── LICENSE                 # MIT License
 └── README.md               # Project documentation
 ```
@@ -180,6 +184,7 @@ google-drive-clone/
 - **Backend:** Python 3.11, Django 5.1 (ORM, Authentication, Admin Console, WSGI)
 - **Frontend:** Vanilla JavaScript, HTML5, Tailwind CSS, DaisyUI (zero-build asset pipeline)
 - **Database:** SQLite (default development) / PostgreSQL (production deployment ready)
+- **Cryptography:** Authenticated AES-128-CBC with HMAC-SHA256 (`cryptography.fernet`) for zero-knowledge media encryption at rest
 - **Containerization:** Docker & Docker Compose with Gunicorn WSGI HTTP server
 - **Optimizations:** In-memory graph traversal ($O(1)$ folder descent), database composite indexing, and process-level email caching
 
