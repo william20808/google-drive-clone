@@ -180,16 +180,17 @@ google-drive-clone/
 
 ## 6. Features
 
-### Ultra-Lightweight Showcase Media (< 20 KB)
-Both `demo` and `admin` accounts come pre-seeded with 5 sample files (~16.5 KB total):
+### Ultra-Lightweight Showcase Media (< 25 KB)
+Both `demo` and `admin` accounts come pre-seeded with 6 sample files (~17.2 KB total):
 
 | File Name | Format | Size | Showcase Feature |
 | :--- | :--- | :--- | :--- |
 | `Getting_Started_Guide.pdf` | PDF Document | ~850 B | PDF Reading Mode (zoom & print) |
 | `Google_Drive_Banner.png` | PNG Image | ~1.4 KB | Photo Viewer (rotation & zoom) |
-| `Welcome_Notes.txt` | Plain Text | ~580 B | Text Viewer & copy to clipboard |
-| `Project_Roadmap.csv` | Tabular Data | ~366 B | Interactive spreadsheet table |
+| `Welcome_Notes.txt` | Plain Text | ~644 B | Text Viewer & copy to clipboard |
+| `Project_Roadmap.csv` | Tabular Data | ~399 B | Interactive spreadsheet table |
 | `Sample_Video.mp4` | MP4 Video | ~13.7 KB | HTML5 Video Player (0.5x–2x speed) |
+| `Confidential_Security_Note.txt` | Plain Text | ~570 B | Zero-Knowledge AES-at-rest encryption |
 
 ### Key Features
 - **Multi-Format In-Browser Previews:** Instant viewing for PDF, images, MP4 video, CSV spreadsheets, and text files without external dependencies.

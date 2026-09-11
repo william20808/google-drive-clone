@@ -5,12 +5,13 @@ Initializes the database to a clean, production-ready state with:
 - All other users deleted
 - All existing DriveItems removed
 - Media directory cleaned of orphan files
-- Exactly 5 ultra-lightweight showcase files (< 20 KB total):
+- Exactly 6 ultra-lightweight showcase files (< 25 KB total):
     1. Getting_Started_Guide.pdf (~1 KB)
     2. Google_Drive_Banner.png (~3 KB)
     3. Welcome_Notes.txt (~0.5 KB)
     4. Project_Roadmap.csv (~0.3 KB)
     5. Sample_Video.mp4 (~13.7 KB)
+    6. Confidential_Security_Note.txt (~0.8 KB)
 """
 
 import os
@@ -151,7 +152,7 @@ def seed():
                     pass
     print("3. Cleaned media/uploads directory.")
 
-    # 4. Generate & Save Exactly 5 Lightweight Showcase Files for both 'demo' and 'admin'
+    # 4. Generate & Save Exactly 6 Lightweight Showcase Files for both 'demo' and 'admin'
     print("4. Generating showcase files for both 'demo' and 'admin'...")
 
     pdf_data = generate_minimal_pdf()
@@ -168,6 +169,7 @@ def seed():
         "- Multi-item selection: star, move, trash, restore, delete, download as ZIP\n"
         "- Public token sharing for both files and folder subtrees\n"
         "- Quota and storage plan management (15GB, 100GB, 500GB)\n"
+        "- Enterprise AES-128-CBC + HMAC-SHA256 At-Rest Media Encryption\n"
     ).encode('utf-8')
     csv_content = (
         "Project Milestone,Category,Assigned To,Status,Quarter\n"
@@ -175,9 +177,24 @@ def seed():
         "Modern Responsive UI,Frontend,Team,Completed,2026-Q1\n"
         "Dedicated Reading Modes,Features,Team,Completed,2026-Q2\n"
         "Database Indexing & Caching,Performance,Team,Completed,2026-Q2\n"
+        "Zero-Knowledge Encryption,Security,Team,Completed,2026-Q3\n"
         "GitHub Deployment & Delivery,DevOps,Team,In Progress,2026-Q3\n"
     ).encode('utf-8')
     mp4_data = get_minimal_mp4()
+
+    def get_confidential_note(username):
+        return (
+            f"CONFIDENTIAL ZERO-KNOWLEDGE DOCUMENT\n"
+            f"====================================\n\n"
+            f"Owner: {username}\n"
+            f"Security Level: Enterprise Zero-Knowledge At-Rest Encryption\n\n"
+            f"Notice for Cloud Providers & Server Administrators:\n"
+            f"This file is encrypted using authenticated AES-128-CBC + HMAC-SHA256 (Fernet).\n"
+            f"If you open this file directly on the physical server hard drive or S3 bucket,\n"
+            f"you will only see scrambled ciphertext starting with 'ENC_FERNET_V1::'.\n\n"
+            f"Only the authenticated owner ({username}) or authorized shared recipients\n"
+            f"can decrypt and read this text inside the Google Drive application.\n"
+        ).encode('utf-8')
 
     def seed_files_for_user(target_user):
         print(f"   -> Seeding files for '{target_user.username}'...")
@@ -237,13 +254,27 @@ def seed():
             file_extension='mp4',
         )
         item_mp4.file.save('Sample_Video.mp4', ContentFile(mp4_data), save=True)
-        print(f"      Seeded 5 documents for '{target_user.username}' successfully.")
+
+        # 6. Confidential Encrypted Note
+        secret_content = get_confidential_note(target_user.username)
+        item_secret = DriveItem(
+            owner=target_user,
+            name='Confidential_Security_Note.txt',
+            is_folder=False,
+            file_size=len(secret_content),
+            mime_type='text/plain',
+            file_extension='txt',
+            is_starred=True,
+        )
+        item_secret.file.save('Confidential_Security_Note.txt', ContentFile(secret_content), save=True)
+
+        print(f"      Seeded 6 documents for '{target_user.username}' successfully.")
 
     seed_files_for_user(demo_user)
     seed_files_for_user(admin_user)
 
-    total_single = len(pdf_data) + len(png_data) + len(txt_content) + len(csv_content) + len(mp4_data)
-    print(f"\nTotal media size per user: {total_single / 1024:.2f} KB | Total combined (10 files): {(total_single * 2) / 1024:.2f} KB")
+    total_single = len(pdf_data) + len(png_data) + len(txt_content) + len(csv_content) + len(mp4_data) + len(get_confidential_note('demo'))
+    print(f"\nTotal media size per user: {total_single / 1024:.2f} KB | Total combined (12 files): {(total_single * 2) / 1024:.2f} KB")
     print("=" * 60)
     print("DATABASE RESET & SEED COMPLETED SUCCESSFULLY!")
     print("=" * 60)
